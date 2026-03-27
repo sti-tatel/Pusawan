@@ -18,6 +18,7 @@ public class Cooking extends JFrame {
         setLayout(new FlowLayout());
         getContentPane().setBackground(Color.BLUE);
         setLocationRelativeTo(null);
+        setCursor(playerCursor.getCustomCursor());
 
        loadBackgroundImage();
        BackgroundPanel cookingbackground = new BackgroundPanel();
@@ -65,7 +66,7 @@ public class Cooking extends JFrame {
     }
     private void loadBackgroundImage() {
         try {
-            cookingBackgroundImage = ImageIO.read(new File("Pusawan\\Cooking.jpg"));
+            cookingBackgroundImage = ImageIO.read(new File("Pusawan-main/Pusawan/images/Cooking.jpg"));
         } catch (Exception e) {
             System.out.println("Background image not found: " + e.getMessage());
         }

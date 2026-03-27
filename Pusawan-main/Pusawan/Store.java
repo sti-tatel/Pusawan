@@ -18,6 +18,7 @@ public class Store extends JFrame {
         setLayout(new FlowLayout());
         getContentPane().setBackground(Color.cyan);
         setLocationRelativeTo(null);
+        setCursor(playerCursor.getCustomCursor());
 
         loadBackgroundImage();
         BackgroundPanel storebackground = new BackgroundPanel();
@@ -78,7 +79,7 @@ public class Store extends JFrame {
     public void loadBackgroundImage() {
 
         try {
-            storeBackgroundImage = ImageIO.read(new File("Pusawan\\storebackground.jpg"));
+            storeBackgroundImage = ImageIO.read(new File("Pusawan-main\\Pusawan\\images\\storebackground.jpg"));
         } catch (Exception e) {
             System.out.println("Background image doesn't found: " + e.getMessage());
         }

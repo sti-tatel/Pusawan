@@ -17,6 +17,7 @@ public class GamePanel1 extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
         setLocationRelativeTo(null);
+        setCursor(playerCursor.getCustomCursor());
         
         loadBackgroundImage();
         
@@ -93,7 +94,7 @@ public class GamePanel1 extends JFrame {
     }
     public void loadBackgroundImage() {
         try {
-            pondbackgroundImage = ImageIO.read(new File("Pusawan\\pond.jpg"));
+            pondbackgroundImage = ImageIO.read(new File("Pusawan-main\\Pusawan\\images\\pond.jpg"));
         } catch (Exception e) {
             System.out.println("Background image not found: " + e.getMessage());
         }

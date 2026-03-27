@@ -16,7 +16,8 @@ public class Inventory extends JFrame {
         setVisible(true);
         setResizable(false);
         getContentPane().setBackground(new Color(186, 160, 84));
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(screen);;
+        setCursor(playerCursor.getCustomCursor());
 
 
         screen = new JPanel();
