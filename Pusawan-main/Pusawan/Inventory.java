@@ -1,8 +1,8 @@
 package Pusawan;
 
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class Inventory extends JFrame {
         JPanel screen;
@@ -16,6 +16,7 @@ public class Inventory extends JFrame {
         setVisible(true);
         setResizable(false);
         getContentPane().setBackground(new Color(186, 160, 84));
+        setLocationRelativeTo(null);
 
 
         screen = new JPanel();
@@ -26,7 +27,7 @@ public class Inventory extends JFrame {
 
 
         JButton button;
-        button = new JButton("TO GAME PANEL 1");
+        button = new JButton("BACK TO PANEL 1");
         add(button);
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
