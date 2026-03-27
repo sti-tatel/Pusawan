@@ -1,22 +1,22 @@
 package Pusawan;
 
 import java.awt.*;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 public class GamePanel1 extends JFrame {
         private BufferedImage pondbackgroundImage;
         
     public GamePanel1(){
-
+        
         setTitle("Game Panel 1");
         setSize(1350,750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
+        setLocationRelativeTo(null);
         
         loadBackgroundImage();
         
@@ -45,7 +45,6 @@ public class GamePanel1 extends JFrame {
          gotoinventorybutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
 
-                dispose();
                 new Inventory();
             }
         });
