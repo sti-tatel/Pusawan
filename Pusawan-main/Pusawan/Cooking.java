@@ -17,6 +17,7 @@ public class Cooking extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
         getContentPane().setBackground(Color.BLUE);
+        setLocationRelativeTo(null);
 
        loadBackgroundImage();
        BackgroundPanel cookingbackground = new BackgroundPanel();
@@ -45,7 +46,6 @@ public class Cooking extends JFrame {
          gotostorebutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
 
-                dispose();
                 new Inventory();
             }
         });
