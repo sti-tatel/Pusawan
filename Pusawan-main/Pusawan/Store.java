@@ -1,25 +1,26 @@
 package Pusawan;
 
 import java.awt.*;
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 public class Store extends JFrame {
-        public BufferedImage storeBackgroundImage;
-        
-    public Store(){
+    public BufferedImage storeBackgroundImage;
+
+    public Store() {
 
         setTitle("Game Store");
-        setSize(1350,750);
+        setSize(1350, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
         getContentPane().setBackground(Color.cyan);
+        setLocationRelativeTo(null);
 
         loadBackgroundImage();
-        BackgroundPanel storebackground = new BackgroundPanel( );
+        BackgroundPanel storebackground = new BackgroundPanel();
         setContentPane(storebackground);
 
         JLabel title;
@@ -30,7 +31,7 @@ public class Store extends JFrame {
         button = new JButton("GO to GamePanel1");
         add(button);
         button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
 
                 dispose();
 
@@ -41,10 +42,9 @@ public class Store extends JFrame {
         button = new JButton("INVENTORY");
         add(button);
 
-         button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
 
-                dispose();
                 new Inventory();
             }
         });
@@ -52,8 +52,8 @@ public class Store extends JFrame {
         button = new JButton("Go to Cooking");
         add(button);
 
-         button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
 
                 dispose();
 
@@ -64,8 +64,8 @@ public class Store extends JFrame {
         button = new JButton("Go to Cutting");
         add(button);
 
-         button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
 
                 dispose();
 
@@ -76,21 +76,21 @@ public class Store extends JFrame {
     }
 
     public void loadBackgroundImage() {
-       
+
         try {
             storeBackgroundImage = ImageIO.read(new File("Pusawan\\storebackground.jpg"));
         } catch (Exception e) {
-            System.out.println("Background image doesn't found: "+ e.getMessage());
+            System.out.println("Background image doesn't found: " + e.getMessage());
         }
 
     }
 
-    class BackgroundPanel extends JPanel{
+    class BackgroundPanel extends JPanel {
         @Override
-        public void paintComponent(Graphics g){
+        public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            if(storeBackgroundImage != null){
-            g.drawImage(storeBackgroundImage, 0,0,getWidth(),getHeight(),this);
+            if (storeBackgroundImage != null) {
+                g.drawImage(storeBackgroundImage, 0, 0, getWidth(), getHeight(), this);
             }
         }
     }
