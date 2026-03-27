@@ -16,6 +16,7 @@ public class Cutting extends JFrame {
         setSize(1350,750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
+        setLocationRelativeTo(null);
         
         
         loadBackgroundImage();
@@ -47,7 +48,6 @@ public class Cutting extends JFrame {
          gotoinventorybutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
 
-                dispose();
                 new Inventory();
             }
         });
