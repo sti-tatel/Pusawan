@@ -34,7 +34,6 @@ public class Inventory extends JFrame {
             public void actionPerformed(ActionEvent e){
 
                 dispose();
-                new GamePanel1();
             }
         });
 
