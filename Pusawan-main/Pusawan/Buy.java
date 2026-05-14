@@ -3,14 +3,14 @@ package Pusawan;
 import java.awt.*;
 import javax.swing.*;
 
-public class Store extends JPanel {
+public class Buy extends JPanel {
 
     public ImageIcon storeBackgroundGif;
     private Image hover;
     private boolean hovering = false;
     private Rectangle storeZone = new Rectangle(530, 200, 480, 480);
 
-    public Store() {
+    public Buy() {
 
         loadBackgroundImage();
 
@@ -25,7 +25,7 @@ public class Store extends JPanel {
 
         storebackground.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent e) {
-                hovering = storeZone.contains(e.getPoint());
+                hovering = storeZone.contains(e.getPoint()) && Shop.instance == null;
                 repaint();
             }
         });

@@ -60,13 +60,13 @@ public class Buttons extends JPanel {
         Runnable close = () -> {
             open[0] = false;
             if (animTimer[0] != null) animTimer[0].stop();
-            animTimer[0] = new Timer(8, null);
+            animTimer[0] = new Timer(0, null);
             animTimer[0].addActionListener(ev -> {
                 currentH[0] = Math.max(currentH[0] - 50, 0);
                 Point loc = clipPanel.getLocation();
                 clipPanel.setBounds(loc.x, loc.y, 64, Math.max(currentH[0], 1));
                 inner.setBounds(0, currentH[0] - fullHeight, 64, fullHeight);
-                if (clipPanel.getParent() != null) clipPanel.getParent().repaint();
+                if (clipPanel.getParent() != null) clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
                 if (currentH[0] <= 0) {
                     ((Timer) ev.getSource()).stop();
                     clipPanel.setVisible(false);
@@ -108,7 +108,7 @@ public class Buttons extends JPanel {
                 clipPanel.setBounds(loc.x, loc.y, 64, currentH[0]);
                 inner.setBounds(0, currentH[0] - fullHeight, 64, fullHeight);
                 clipPanel.repaint();
-                clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
+                if (clipPanel.getParent() != null) clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
                 if (currentH[0] >= fullHeight) ((Timer) ev.getSource()).stop();
             });
             animTimer[0].start();

@@ -11,6 +11,7 @@ public class Fishing extends JPanel {
     private boolean fishingInProgress = false;
     private String lastCaughtFish = null;
     private boolean showFishResult = false;
+    
 
     static String selectedBait = "No Bait";
 
@@ -87,11 +88,13 @@ public class Fishing extends JPanel {
         private ImageIcon pondbackgroundImage;
         private ImageIcon pondHoverImage;
         private ImageIcon fishingGif;
-
+        private ImageIcon baitSelectImage = new ImageIcon(getClass().getResource("/images/baitSelect.png"));
+        
         public BackgroundPanel() {
             pondbackgroundImage = new ImageIcon(getClass().getResource("/images/pond.gif"));
             pondHoverImage = new ImageIcon(getClass().getResource("/images/pondSelected.png"));
             fishingGif = new ImageIcon(getClass().getResource("/images/fishing.gif"));
+            
             pondbackgroundImage.setImageObserver(this);
             fishingGif.setImageObserver(this);
 
@@ -106,7 +109,7 @@ public class Fishing extends JPanel {
             addMouseMotionListener(new MouseMotionAdapter() {
                 public void mouseMoved(MouseEvent e) {
                     if (!fishingInProgress) {
-                        boolean over = pierHitbox.contains(e.getPoint());
+                        boolean over = pierHitbox.contains(e.getPoint()) && Inventory.instance == null;
                         if (over != pierHovered) {
                             pierHovered = over;
                             repaint();
@@ -122,7 +125,7 @@ public class Fishing extends JPanel {
                         return;
                     }
 
-                    Rectangle baitBar = new Rectangle(10, 460, 180, 35);
+                    Rectangle baitBar = new Rectangle(5, 625, 180, 70);
                     if (baitBar.contains(e.getPoint())) {
                         Inventory.toggleWithMode("bait");
                         return;
@@ -237,14 +240,32 @@ public class Fishing extends JPanel {
             }
 
             // bait bar
-            String baitDisplay = selectedBait.equals("No Bait")
-                ? "Bait: None"
-                : "Bait: " + selectedBait + " x" + Inventory.items.getOrDefault(selectedBait, 0);
-            g.setColor(new Color(0, 0, 0, 150));
-            g.fillRoundRect(10, 460, 180, 35, 10, 10);
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 13));
-            g.drawString(baitDisplay, 20, 483);
+            g.drawImage(baitSelectImage.getImage(), 5, 625, 180, 70, this);
+
+            if (!selectedBait.equals("No Bait")) {
+                // opaque background for bait icon
+                g.setColor(new Color(0, 0, 0, 180));
+                g.fillRoundRect(25, 634, 48, 48, 8, 8);
+
+                // bait icon
+                java.net.URL baitUrl = getClass().getResource("/images/" + 
+                    Character.toLowerCase(selectedBait.charAt(0)) + 
+                    selectedBait.substring(1).replace(" ", "") + ".png");
+                if (baitUrl != null) {
+                    Image baitImg = new ImageIcon(baitUrl).getImage();
+                    g.drawImage(baitImg, 25, 634, 48, 48, this);
+                }
+
+                // bait name + count
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 11));
+                g.drawString(selectedBait, 77, 653);
+                g.drawString("x" + Inventory.items.getOrDefault(selectedBait, 0), 77, 673);
+            } else {
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 12));
+                g.drawString("No Bait", 77, 663);
+            }
         }
 
         private void startFishingAnimation() {

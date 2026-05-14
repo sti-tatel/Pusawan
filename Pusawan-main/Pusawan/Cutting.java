@@ -60,7 +60,7 @@ public class Cutting extends JPanel {
             @Override
             public void mouseMoved(MouseEvent e) {
                 Point p = e.getPoint();
-                hovering = knifeZone.contains(p) || boardZone.contains(p);
+                hovering = (knifeZone.contains(p) || boardZone.contains(p)) && Inventory.instance == null;
                 repaint();
             }
         });

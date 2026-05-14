@@ -59,7 +59,7 @@ public class Cooking extends JPanel {
         panel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                hovering = grillZone.contains(e.getPoint());
+                hovering = grillZone.contains(e.getPoint()) && Inventory.instance == null;
                 repaint();
             }
         });

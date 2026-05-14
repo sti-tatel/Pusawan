@@ -23,7 +23,7 @@ public class Sell extends JPanel {
 
         bg.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent e) {
-                hovering = sellZone.contains(e.getPoint());
+                hovering = sellZone.contains(e.getPoint()) && Shop.instance == null;
                 repaint();
             }
         });

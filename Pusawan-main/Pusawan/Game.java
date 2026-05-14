@@ -30,7 +30,7 @@ public class Game extends JFrame {
         container.add(new Fishing(), GAME);
         container.add(new Cutting(), CUTTING);
         container.add(new Cooking(), COOKING);
-        container.add(new Store(), STORE);
+        container.add(new Buy(), STORE);
         container.add(new Sell(), SELL);
 
         Inventory.fillDebug();
