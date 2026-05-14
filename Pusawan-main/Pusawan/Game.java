@@ -45,6 +45,11 @@ public class Game extends JFrame {
         hideOverlay();
         instance.cardLayout.show(instance.container, screen);
     }
+
+    public static JLayeredPane layeredPane() {
+        return instance.getLayeredPane();
+    }
+    
     private static JPanel overlay;
 
     public static void showOverlay() {

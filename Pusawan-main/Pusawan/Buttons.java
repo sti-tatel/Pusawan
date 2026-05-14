@@ -3,9 +3,8 @@ package Pusawan;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import javax.swing.*;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 public class Buttons extends JPanel {
 
@@ -19,40 +18,34 @@ public class Buttons extends JPanel {
         menuButton.setContentAreaFilled(false);
         menuButton.setFocusPainted(false);
 
-        JPopupMenu popupMenu = new JPopupMenu();
-        popupMenu.setOpaque(false);
-        popupMenu.setBorder(BorderFactory.createEmptyBorder());
-        popupMenu.setBackground(new Color(0, 0, 0, 0));
+        int itemHeight = 64;
+        int totalItems = 6;
+        int fullHeight = itemHeight * totalItems;
+
+        JPanel inner = new JPanel(new GridLayout(totalItems, 1, 0, 0));
+        inner.setBackground(new Color(0, 0, 0, 180));
+        inner.setOpaque(true);
+
+        JPanel clipPanel = new JPanel(null);
+        clipPanel.setOpaque(false);
+        inner.setBounds(0, 0, 64, fullHeight);
+        clipPanel.add(inner);
 
         JButton mainMenu = new JButton(new ImageIcon(Buttons.class.getResource("/images/mainmenu.png")));
+        JButton fishing  = new JButton(new ImageIcon(Buttons.class.getResource("/images/fishing.png")));
         JButton cutting  = new JButton(new ImageIcon(Buttons.class.getResource("/images/cutIconStatic.png")));
         JButton cooking  = new JButton(new ImageIcon(Buttons.class.getResource("/images/cookIconStatic.png")));
         JButton store    = new JButton(new ImageIcon(Buttons.class.getResource("/images/store.png")));
-        JButton fishing  = new JButton(new ImageIcon(Buttons.class.getResource("/images/fishing.png")));
         JButton sell     = new JButton(new ImageIcon(Buttons.class.getResource("/images/sell.png")));
 
         Insets zero = new Insets(0, 0, 0, 0);
-        for (JButton b : new JButton[]{mainMenu, cutting, cooking, store, fishing, sell}) {
+        for (JButton b : new JButton[]{mainMenu, fishing, cutting, cooking, store, sell}) {
             b.setBorderPainted(false);
             b.setContentAreaFilled(false);
             b.setFocusPainted(false);
             b.setMargin(zero);
         }
 
-        mainMenu.addActionListener(e -> { popupMenu.setVisible(false); Game.navigate(Game.START); });
-        fishing.addActionListener(e ->  { popupMenu.setVisible(false); Game.navigate(Game.GAME); });
-        cutting.addActionListener(e ->  { popupMenu.setVisible(false); Game.navigate(Game.CUTTING); });
-        cooking.addActionListener(e ->  { popupMenu.setVisible(false); Game.navigate(Game.COOKING); });
-        store.addActionListener(e ->    { popupMenu.setVisible(false); Game.navigate(Game.STORE); });
-        sell.addActionListener(e ->     { popupMenu.setVisible(false); Game.navigate(Game.SELL); });
-
-        int itemHeight = 64;
-        int totalItems = 6;
-        int fullHeight = itemHeight * totalItems;
-
-        JPanel inner = new JPanel(new GridLayout(totalItems, 1, 0, 0));
-        inner.setOpaque(true);
-        inner.setBackground(new Color(0, 0, 0, 180));
         inner.add(mainMenu);
         inner.add(fishing);
         inner.add(cutting);
@@ -60,67 +53,65 @@ public class Buttons extends JPanel {
         inner.add(store);
         inner.add(sell);
 
-        JPanel wrapper = new JPanel(null) {
-            @Override
-            public boolean isOptimizedDrawingEnabled() { return false; }
-        };
-        wrapper.setOpaque(false);
-        wrapper.setPreferredSize(new java.awt.Dimension(64, fullHeight));
-        inner.setBounds(0, 0, 64, fullHeight);
-        wrapper.add(inner);
-        popupMenu.add(wrapper);
-
         boolean[] open = {false};
-        long[] lastToggle = {0};
         int[] currentH = {0};
         Timer[] animTimer = {null};
 
-        Runnable startAnim = () -> {
+        Runnable close = () -> {
+            open[0] = false;
             if (animTimer[0] != null) animTimer[0].stop();
-            boolean opening = open[0];
             animTimer[0] = new Timer(8, null);
             animTimer[0].addActionListener(ev -> {
-                if (opening) {
-                    currentH[0] = Math.min(currentH[0] + 40, fullHeight);
-                } else {
-                    currentH[0] = Math.max(currentH[0] - 40, 0);
-                }
+                currentH[0] = Math.max(currentH[0] - 50, 0);
+                Point loc = clipPanel.getLocation();
+                clipPanel.setBounds(loc.x, loc.y, 64, Math.max(currentH[0], 1));
                 inner.setBounds(0, currentH[0] - fullHeight, 64, fullHeight);
-                wrapper.setPreferredSize(new java.awt.Dimension(64, currentH[0] == 0 ? 1 : currentH[0]));
-                wrapper.revalidate();
-                popupMenu.pack();
-                if ((opening && currentH[0] >= fullHeight) || (!opening && currentH[0] <= 0)) {
-                    animTimer[0].stop();
-                    if (!opening) popupMenu.setVisible(false);
+                if (clipPanel.getParent() != null) clipPanel.getParent().repaint();
+                if (currentH[0] <= 0) {
+                    ((Timer) ev.getSource()).stop();
+                    clipPanel.setVisible(false);
+                    if (clipPanel.getParent() != null) {
+                        JLayeredPane lp = (JLayeredPane) clipPanel.getParent();
+                        lp.remove(clipPanel);
+                        clipPanel.repaint();
+                        clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
+                    }
                 }
             });
             animTimer[0].start();
         };
 
-        menuButton.addActionListener(e -> {
-            long now = System.currentTimeMillis();
-            if (now - lastToggle[0] < 200) return;
-            lastToggle[0] = now;
-            if (open[0]) {
-                open[0] = false;
-                startAnim.run();
-            } else {
-                currentH[0] = 0;
-                inner.setBounds(0, -fullHeight, 64, fullHeight);
-                wrapper.setPreferredSize(new java.awt.Dimension(64, 1));
-                open[0] = true;
-                popupMenu.show(menuButton, 0, menuButton.getHeight() - 20);
-                startAnim.run();
-            }
-        });
+        mainMenu.addActionListener(e -> { close.run(); Game.navigate(Game.START); });
+        fishing.addActionListener(e ->  { close.run(); Game.navigate(Game.GAME); });
+        cutting.addActionListener(e ->  { close.run(); Game.navigate(Game.CUTTING); });
+        cooking.addActionListener(e ->  { close.run(); Game.navigate(Game.COOKING); });
+        store.addActionListener(e ->    { close.run(); Game.navigate(Game.STORE); });
+        sell.addActionListener(e ->     { close.run(); Game.navigate(Game.SELL); });
 
-        popupMenu.addPopupMenuListener(new PopupMenuListener() {
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                open[0] = false;
-                lastToggle[0] = System.currentTimeMillis();
-            }
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
-            public void popupMenuCanceled(PopupMenuEvent e) { open[0] = false; }
+        menuButton.addActionListener(e -> {
+            if (open[0]) { close.run(); return; }
+            JLayeredPane lp = Game.layeredPane();
+            if (lp == null) return;
+            Point p = SwingUtilities.convertPoint(menuButton.getParent(), menuButton.getLocation(), lp);
+            currentH[0] = 0;
+            inner.setBounds(0, -fullHeight, 64, fullHeight);
+            clipPanel.setBounds(p.x, p.y + menuButton.getHeight(), 64, 1);
+            clipPanel.setVisible(true);
+            lp.add(clipPanel, JLayeredPane.POPUP_LAYER);
+            open[0] = true;
+
+            if (animTimer[0] != null) animTimer[0].stop();
+            animTimer[0] = new Timer(8, null);
+            animTimer[0].addActionListener(ev -> {
+                currentH[0] = Math.min(currentH[0] + 50, fullHeight);
+                Point loc = clipPanel.getLocation();
+                clipPanel.setBounds(loc.x, loc.y, 64, currentH[0]);
+                inner.setBounds(0, currentH[0] - fullHeight, 64, fullHeight);
+                clipPanel.repaint();
+                clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
+                if (currentH[0] >= fullHeight) ((Timer) ev.getSource()).stop();
+            });
+            animTimer[0].start();
         });
 
         return menuButton;

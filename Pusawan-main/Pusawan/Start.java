@@ -10,7 +10,7 @@ public class Start extends JPanel {
     public Start() {
 
         loadBackgroundImage();
-        new javax.swing.Timer(24, e -> repaint()).start();
+        new javax.swing.Timer(24, e -> { if (isShowing()) repaint(); }).start();
 
         BackgroundPanel background1 = new BackgroundPanel();
         background1.setLayout(null); // IMPORTANT

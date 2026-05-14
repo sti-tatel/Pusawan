@@ -37,6 +37,7 @@ public class Fishing extends JPanel {
 
     public Fishing() {
         new javax.swing.Timer(16, e -> {
+            if (!isShowing()) return;
             if (fishingInProgress) {
                 fishIndicator += indicatorDir * INDICATOR_SPEED;
                 if (fishIndicator >= 1f) { fishIndicator = 1f; indicatorDir = -1f; }

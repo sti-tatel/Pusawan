@@ -117,7 +117,7 @@ public class Shop extends JFrame {
         sellTab.setBorderPainted(false);
 
         JButton buyTab = new JButton("Buy");
-        buyTab.setBounds(175, 0, 175, 40);
+        buyTab.setBounds(mode.equals("buy") ? 0 : 175, 0, 175, 40);
         buyTab.setFont(new Font("Arial", Font.BOLD, 14));
         buyTab.setBackground(new Color(50, 40, 30));
         buyTab.setForeground(new Color(180, 160, 120));
@@ -126,6 +126,11 @@ public class Shop extends JFrame {
 
         if (showSell) tabPanel.add(sellTab);
         if (showBuy)  tabPanel.add(buyTab);
+
+        if (mode.equals("buy")) {
+            buyTab.setBackground(new Color(90, 70, 45));
+            buyTab.setForeground(Color.WHITE);
+        }
 
         sellTab.addActionListener(e -> {
             if (isBuyTab) {

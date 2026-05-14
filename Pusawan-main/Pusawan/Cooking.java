@@ -82,7 +82,7 @@ public class Cooking extends JPanel {
             }
         });
 
-        new Timer(16, e -> repaint()).start();
+        new javax.swing.Timer(24, e -> { if (isShowing()) repaint(); }).start();
 
     }
 

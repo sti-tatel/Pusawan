@@ -14,7 +14,7 @@ public class Sell extends JPanel {
         sellBackgroundGif = new ImageIcon(getClass().getResource("/images/sell.gif"));
         hover = new ImageIcon(getClass().getResource("/images/sellSelected.png")).getImage();
 
-        new javax.swing.Timer(24, e -> repaint()).start();
+        new javax.swing.Timer(24, e -> { if (isShowing()) repaint(); }).start();
 
         BackgroundPanel bg = new BackgroundPanel();
         setLayout(new BorderLayout());
