@@ -10,6 +10,7 @@ public class Sell extends JPanel {
     private boolean hovering = false;
     private Rectangle sellZone = new Rectangle(180, 65, 830, 585);
 
+
     public Sell() {
         sellBackgroundGif = new ImageIcon(getClass().getResource("/images/sell.gif"));
         hover = new ImageIcon(getClass().getResource("/images/sellSelected.png")).getImage();
@@ -21,6 +22,14 @@ public class Sell extends JPanel {
         add(bg, BorderLayout.CENTER);
         bg.setLayout(null);
 
+        JButton menuButton = Buttons.toDropdown();
+        menuButton.setBounds(20, 20, 64, 64);
+        bg.add(menuButton);
+
+        JButton inventoryButton = Buttons.toInventory();
+        inventoryButton.setBounds(20, 505, 100, 100);
+        bg.add(inventoryButton);
+
         bg.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent e) {
                 hovering = sellZone.contains(e.getPoint()) && Shop.instance == null;
@@ -30,22 +39,14 @@ public class Sell extends JPanel {
 
         bg.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (inventoryButton.getBounds().contains(e.getPoint())) return;
                 if (sellZone.contains(e.getPoint())) {
                     Shop.toggleShop("sell");
                 } else {
-                    if (Inventory.instance != null) { Inventory.instance.dispose(); Inventory.instance = null; }
-                    if (Shop.instance != null) { Shop.instance.dispose(); Shop.instance = null; }
+                    if (Shop.instance != null) Shop.instance.dispose();
                 }
             }
         });
-
-        JButton menuButton = Buttons.toDropdown();
-        menuButton.setBounds(20, 20, 64, 64);
-        bg.add(menuButton);
-
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        bg.add(inventoryButton);
     }
 
     class BackgroundPanel extends JPanel {

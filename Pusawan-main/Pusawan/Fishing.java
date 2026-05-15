@@ -165,6 +165,7 @@ public class Fishing extends JPanel {
                         Inventory.removeItem(selectedBait);
                         if (Inventory.items.getOrDefault(selectedBait, 0) <= 0)
                             selectedBait = "No Bait";
+                            repaint();
                     }
                     new Timer(2000, ev -> {
                         showFishResult = false;
@@ -257,7 +258,7 @@ public class Fishing extends JPanel {
                 }
 
                 // bait name + count
-                g.setColor(Color.WHITE);
+                g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.BOLD, 11));
                 g.drawString(selectedBait, 77, 653);
                 g.drawString("x" + Inventory.items.getOrDefault(selectedBait, 0), 77, 673);

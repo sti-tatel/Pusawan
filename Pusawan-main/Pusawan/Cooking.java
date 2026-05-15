@@ -21,13 +21,16 @@ public class Cooking extends JPanel {
     private Timer cookTimer;
 
     private static Cooking instance;
+    public static boolean isCooking = false;
 
     public static void playCookGif(String fishName) {
         if (instance == null) return;
+        isCooking = true;
         instance.cooking = true;
         instance.showPopup("Cooking...");
         instance.repaint();
         new Timer(8000, e -> {
+            isCooking = false;
             instance.cooking = false;
             String cooked = "Cooked " + fishName.replace("Cut ", "");
             instance.showPopup("Added: " + cooked);
@@ -67,8 +70,9 @@ public class Cooking extends JPanel {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (grillZone.contains(e.getPoint())) {
-                    Inventory.toggleWithMode("cook");
+            if (grillZone.contains(e.getPoint()) && !Cooking.isCooking) {
+                if (Inventory.getFirstCutFish() == null) return;
+                Inventory.toggleWithMode("cook");
                 } else {
                     if (Inventory.instance != null) Inventory.instance.dispose();
                 }

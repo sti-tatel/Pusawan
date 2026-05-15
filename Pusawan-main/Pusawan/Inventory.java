@@ -10,6 +10,8 @@
         static Inventory instance;
         private String mode = "inventory";
         private boolean isItemsTab = false;
+        private boolean isBaitTab = false;
+        
 
         private static final java.util.Set<String> FISH_NAMES = new java.util.HashSet<>(
             java.util.Arrays.asList("Carp", "Catfish", "Bass", "Perch")
@@ -26,7 +28,8 @@
         public Inventory(String mode) {
 
             this.mode = mode;
-            if (mode.equals("bait")) isItemsTab = true;
+            if (mode.equals("inventory")) isItemsTab = false;
+            if (mode.equals("bait")) isBaitTab = true;
 
             setTitle("Inventory");
             setSize(760, 620);
@@ -114,33 +117,69 @@
             itemsTab.setFocusPainted(false);
             itemsTab.setBorderPainted(false);
 
+            JButton baitTab = new JButton("Bait");
+            baitTab.setBounds(350, 0, 175, 40);
+            baitTab.setFont(new Font("Arial", Font.BOLD, 14));
+            baitTab.setBackground(new Color(50, 40, 30));
+            baitTab.setForeground(new Color(180, 160, 120));
+            baitTab.setFocusPainted(false);
+            baitTab.setBorderPainted(false);
+
+            baitTab.addActionListener(e -> {
+                if (isBaitTab) return;
+                isBaitTab = true;
+                isItemsTab = false;
+                baitTab.setBackground(new Color(90, 70, 45)); baitTab.setForeground(Color.WHITE);
+                fishTab.setBackground(new Color(50, 40, 30)); fishTab.setForeground(new Color(180, 160, 120));
+                itemsTab.setBackground(new Color(50, 40, 30)); itemsTab.setForeground(new Color(180, 160, 120));
+                refreshItems();
+            });
+
+            if (mode.equals("bait")) {
+                baitTab.setBackground(new Color(90, 70, 45));
+                baitTab.setForeground(Color.WHITE);
+                fishTab.setBackground(new Color(50, 40, 30));
+                fishTab.setForeground(new Color(180, 160, 120));
+            }
+            
+           
             boolean lockedToFish = mode.equals("cut") || mode.equals("cook");
             if (lockedToFish) {
                 itemsTab.setEnabled(false);
                 itemsTab.setForeground(new Color(80, 70, 60));
+                baitTab.setEnabled(false);
+                baitTab.setForeground(new Color(80, 70, 60));
+            }
+            if (mode.equals("bait")) {
+                fishTab.setEnabled(false);
+                fishTab.setForeground(new Color(80, 70, 60));
+                itemsTab.setEnabled(false);
+                itemsTab.setForeground(new Color(80, 70, 60));
             }
 
+
             fishTab.addActionListener(e -> {
-                if (!isItemsTab) return;
+                if (!isItemsTab && !isBaitTab) return;
                 isItemsTab = false;
-                fishTab.setBackground(new Color(90, 70, 45));
-                fishTab.setForeground(Color.WHITE);
-                itemsTab.setBackground(new Color(50, 40, 30));
-                itemsTab.setForeground(new Color(180, 160, 120));
+                isBaitTab = false;
+                fishTab.setBackground(new Color(90, 70, 45)); fishTab.setForeground(Color.WHITE);
+                itemsTab.setBackground(new Color(50, 40, 30)); itemsTab.setForeground(new Color(180, 160, 120));
+                baitTab.setBackground(new Color(50, 40, 30)); baitTab.setForeground(new Color(180, 160, 120));
                 refreshItems();
             });
 
             itemsTab.addActionListener(e -> {
                 if (isItemsTab) return;
                 isItemsTab = true;
-                itemsTab.setBackground(new Color(90, 70, 45));
-                itemsTab.setForeground(Color.WHITE);
-                fishTab.setBackground(new Color(50, 40, 30));
-                fishTab.setForeground(new Color(180, 160, 120));
+                isBaitTab = false;
+                itemsTab.setBackground(new Color(90, 70, 45)); itemsTab.setForeground(Color.WHITE);
+                fishTab.setBackground(new Color(50, 40, 30)); fishTab.setForeground(new Color(180, 160, 120));
+                baitTab.setBackground(new Color(50, 40, 30)); baitTab.setForeground(new Color(180, 160, 120));
                 refreshItems();
             });
 
             tabPanel.add(fishTab);
+            tabPanel.add(baitTab);
             tabPanel.add(itemsTab);
             layeredPane.add(tabPanel, JLayeredPane.DEFAULT_LAYER);
 
@@ -153,6 +192,7 @@
 
             layeredPane.add(bg, JLayeredPane.DEFAULT_LAYER);
 
+            
             setVisible(true);
         }
 
@@ -172,15 +212,17 @@
                     || itemName.startsWith("Cooked ");
 
                 // tab filter
-                if (!mode.equals("bait")) {
-                    if (isItemsTab && isFish) continue;
-                    if (!isItemsTab && !isFish) continue;
+                if (mode.equals("bait")) {
+                    if (!itemName.endsWith("Bait")) continue;
+                } else if (mode.equals("cut")) {
+                    if (!FISH_NAMES.contains(itemName)) continue;
+                } else if (mode.equals("cook")) {
+                    if (!itemName.startsWith("Cut ")) continue;
+                } else {
+                    if (isBaitTab && !itemName.endsWith("Bait")) continue;
+                    if (isItemsTab && (isFish || itemName.endsWith("Bait"))) continue;
+                    if (!isItemsTab && !isBaitTab && (!isFish || itemName.endsWith("Bait"))) continue;
                 }
-
-                // mode filter
-                if (mode.equals("cut") && !FISH_NAMES.contains(itemName)) continue;
-                if (mode.equals("cook") && !itemName.startsWith("Cut ")) continue;
-                if (mode.equals("bait") && !itemName.endsWith("Bait")) continue;
 
 
                 JPanel slot = new JPanel(new BorderLayout());
@@ -197,6 +239,21 @@
                     }
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         slot.setBackground(Color.YELLOW);
+
+                        if (mode.equals("inventory")) {
+                            // show delete button as popup next to slot
+                            JPopupMenu popup = new JPopupMenu();
+                            JButton deleteBtn = new JButton("Delete");
+                            deleteBtn.addActionListener(ev -> {
+                                Inventory.removeItem(itemName);
+                                popup.setVisible(false);
+                                refreshItems();
+                            });
+                            popup.add(deleteBtn);
+                            popup.show(slot, slot.getWidth(), 0);
+                            return;
+                        }
+
                         if (mode.equals("cut")) {
                             Inventory.removeItem(itemName);
                             Inventory.addItem("Cut " + itemName);
@@ -208,10 +265,7 @@
                             Inventory.removeItem(itemName);
                             String cooked = "Cooked " + itemName.replace("Cut ", "");
                             Cooking.playCookGif(itemName);
-                            new javax.swing.Timer(3000, ev -> {
-                                Inventory.addItem(cooked);
-                                ((javax.swing.Timer) ev.getSource()).stop();
-                            }).start();
+                            Inventory.addItem(cooked);
                             dispose();
                             instance = null;
                         }
@@ -339,31 +393,27 @@
 
         // ================= TOGGLE =================
         public static void toggleInventory() {
-            if (instance == null || !instance.isDisplayable()) {
-                instance = new Inventory("inventory");
-                instance.refreshItems();
-                Game.showOverlay();
-                Buttons.updateInventoryIcon();
-            } else {
+            if (Buttons.closeDropdown != null) Buttons.closeDropdown.run();
+            if (instance != null && instance.isDisplayable()) {
                 instance.dispose();
-                instance = null;
-                Game.hideOverlayIfNoModals();
-                Buttons.updateInventoryIcon();
+                return;
             }
+            instance = new Inventory("inventory");
+            instance.refreshItems();
+            Game.showOverlay();
+            Buttons.updateInventoryIcon();
         }
 
         // ================= TOGGLE WITH MODE =================
         public static void toggleWithMode(String mode) {
-            if (instance == null || !instance.isDisplayable()) {
-                instance = new Inventory(mode);
-                instance.refreshItems();
-                Game.showOverlay();
-                Buttons.updateInventoryIcon();
-            } else {
+            if (Buttons.closeDropdown != null) Buttons.closeDropdown.run();
+            if (instance != null && instance.isDisplayable()) {
                 instance.dispose();
-                instance = null;
-                Game.hideOverlayIfNoModals();
-                Buttons.updateInventoryIcon();
+                return;
             }
+            instance = new Inventory(mode);
+            instance.refreshItems();
+            Game.showOverlay();
+            Buttons.updateInventoryIcon();
         }
     }

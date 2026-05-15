@@ -40,8 +40,8 @@ public class Game extends JFrame {
     }
 
     public static void navigate(String screen) {
-        if (Inventory.instance != null) { Inventory.instance.dispose(); }
-        if (Shop.instance != null) { Shop.instance.dispose(); }
+        if (Inventory.instance != null) { Inventory.instance.dispose(); Inventory.instance = null; }
+        if (Shop.instance != null) { Shop.instance.dispose(); Shop.instance = null; }
         hideOverlay();
         instance.cardLayout.show(instance.container, screen);
     }

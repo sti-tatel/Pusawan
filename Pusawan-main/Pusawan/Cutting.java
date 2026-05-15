@@ -23,14 +23,17 @@ public class Cutting extends JPanel {
     private Timer cutTimer;
 
     private static Cutting instance;
+    public static boolean isCutting = false;
 
     public static void playCutGif(String fishName) {
         if (instance == null)
             return;
+        isCutting = true;
         instance.cutting = true;
         instance.showPopup("Consumed: " + fishName + " → Added: Cut " + fishName);
         instance.repaint();
         new Timer(8000, e -> {
+            isCutting = false;
             instance.cutting = false;
             instance.repaint();
             ((Timer) e.getSource()).stop();
@@ -71,7 +74,8 @@ public class Cutting extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 Point p = e.getPoint();
 
-            if (knifeZone.contains(p) || boardZone.contains(p)) {
+            if ((knifeZone.contains(p) || boardZone.contains(p)) && !Cutting.isCutting) {
+                if (Inventory.getFirstFish() == null) return;
                 Inventory.toggleWithMode("cut");
             } else {
                 if (Inventory.instance != null) Inventory.instance.dispose();
@@ -87,7 +91,7 @@ public class Cutting extends JPanel {
         });
 
         // smooth repaint loop (UI refresh + popup timing)
-        new Timer(8000, e -> repaint()).start();
+        new Timer(16, e -> { if (isShowing()) repaint(); }).start();
 
     }
 

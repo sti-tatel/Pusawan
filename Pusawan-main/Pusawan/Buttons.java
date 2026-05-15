@@ -8,7 +8,10 @@ import javax.swing.*;
 
 public class Buttons extends JPanel {
 
+    public static Runnable closeDropdown;
+    
     public static JButton inventoryButtonRef;
+    
     private static final java.util.List<JButton> inventoryButtons = new java.util.ArrayList<>();
 
     public static JButton toDropdown() {
@@ -56,9 +59,11 @@ public class Buttons extends JPanel {
         boolean[] open = {false};
         int[] currentH = {0};
         Timer[] animTimer = {null};
-
+        
         Runnable close = () -> {
             open[0] = false;
+            if (Inventory.instance != null) Inventory.instance.dispose();
+            if (Shop.instance != null) Shop.instance.dispose();
             if (animTimer[0] != null) animTimer[0].stop();
             animTimer[0] = new Timer(0, null);
             animTimer[0].addActionListener(ev -> {
@@ -66,20 +71,22 @@ public class Buttons extends JPanel {
                 Point loc = clipPanel.getLocation();
                 clipPanel.setBounds(loc.x, loc.y, 64, Math.max(currentH[0], 1));
                 inner.setBounds(0, currentH[0] - fullHeight, 64, fullHeight);
-                if (clipPanel.getParent() != null) clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
+               if (clipPanel.getParent() != null) clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
                 if (currentH[0] <= 0) {
                     ((Timer) ev.getSource()).stop();
                     clipPanel.setVisible(false);
                     if (clipPanel.getParent() != null) {
+                        ((Timer) ev.getSource()).stop();
                         JLayeredPane lp = (JLayeredPane) clipPanel.getParent();
                         lp.remove(clipPanel);
-                        clipPanel.repaint();
-                        clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
+                        lp.repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
                     }
                 }
             });
             animTimer[0].start();
         };
+
+        closeDropdown = close;
 
         mainMenu.addActionListener(e -> { close.run(); Game.navigate(Game.START); });
         fishing.addActionListener(e ->  { close.run(); Game.navigate(Game.GAME); });
@@ -101,7 +108,7 @@ public class Buttons extends JPanel {
             open[0] = true;
 
             if (animTimer[0] != null) animTimer[0].stop();
-            animTimer[0] = new Timer(8, null);
+            animTimer[0] = new Timer(0, null);
             animTimer[0].addActionListener(ev -> {
                 currentH[0] = Math.min(currentH[0] + 50, fullHeight);
                 Point loc = clipPanel.getLocation();
@@ -158,12 +165,18 @@ public class Buttons extends JPanel {
     }
 
     public static void updateInventoryIcon() {
+        
         if (inventoryButtons.isEmpty()) return;
         ImageIcon closedIcon = new ImageIcon(Buttons.class.getResource("/images/inventory.png"));
         ImageIcon openedIcon = new ImageIcon(Buttons.class.getResource("/images/inventoryOpened.png"));
         for (JButton button : inventoryButtons) {
             button.setIcon(Inventory.instance != null ? openedIcon : closedIcon);
         }
+    }
+
+    public static void clearInventoryButtons() {
+        inventoryButtons.removeIf(b -> !b.isDisplayable());
+        inventoryButtonRef = inventoryButtons.isEmpty() ? null : inventoryButtons.get(inventoryButtons.size() - 1);
     }
 
     public static JButton toCutting() {

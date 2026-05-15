@@ -11,20 +11,22 @@ public class PlayerData {
         return money;
     }
 
-    private static java.util.List<JLabel> moneyLabels = new java.util.ArrayList<>();
+    private static java.util.List<java.lang.ref.WeakReference<JLabel>> moneyLabels = new java.util.ArrayList<>();
 
     public static JLabel createMoneyLabel() {
         JLabel label = new JLabel("₱" + money);
         label.setFont(new Font("Arial", Font.BOLD, 20));
         label.setForeground(Color.WHITE);
-        moneyLabels.add(label);
+        moneyLabels.add(new java.lang.ref.WeakReference<>(label));
         return label;
     }
 
     public static void addMoney(int amount) {
         money += amount;
-        for (JLabel label : moneyLabels) {
-            label.setText("₱" + money);
+        moneyLabels.removeIf(ref -> ref.get() == null);
+        for (java.lang.ref.WeakReference<JLabel> ref : moneyLabels) {
+            JLabel label = ref.get();
+            if (label != null) label.setText("₱" + money);
         }
     }
 

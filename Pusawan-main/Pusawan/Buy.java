@@ -35,14 +35,8 @@ public class Buy extends JPanel {
                 if (storeZone.contains(e.getPoint())) {
                     Shop.toggleShop("buy");
                 } else {
-                    if (Inventory.instance != null) {
-                        Inventory.instance.dispose();
-                        Inventory.instance = null;
-                    }
-                    if (Shop.instance != null) {
-                        Shop.instance.dispose();
-                        Shop.instance = null;
-                    }
+                    if (Inventory.instance != null) Inventory.instance.dispose();
+                    if (Shop.instance != null) Shop.instance.dispose();
                 }
             }
         });
