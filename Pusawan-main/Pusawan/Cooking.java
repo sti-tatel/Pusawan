@@ -21,17 +21,23 @@ public class Cooking extends JPanel {
     private Timer cookTimer;
 
     private static Cooking instance;
+    private JButton menuButton;
     public static boolean isCooking = false;
+
+    
 
     public static void playCookGif(String fishName) {
         if (instance == null) return;
         isCooking = true;
         instance.cooking = true;
+        Buttons.closeAllDropdowns();
+        instance.menuButton.setEnabled(false);
         instance.showPopup("Cooking...");
         instance.repaint();
         new Timer(8000, e -> {
             isCooking = false;
             instance.cooking = false;
+            instance.menuButton.setEnabled(true);
             String cooked = "Cooked " + fishName.replace("Cut ", "");
             instance.showPopup("Added: " + cooked);
             instance.repaint();
@@ -51,7 +57,7 @@ public class Cooking extends JPanel {
         panel.setLayout(null);
 
 
-        JButton menuButton = Buttons.toDropdown();
+        menuButton = Buttons.toDropdown();
         menuButton.setBounds(20, 20, 64, 64);
         panel.add(menuButton);
 
@@ -70,10 +76,12 @@ public class Cooking extends JPanel {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-            if (grillZone.contains(e.getPoint()) && !Cooking.isCooking) {
+                Buttons.closeAllDropdowns();
+                if (grillZone.contains(e.getPoint()) && !Cooking.isCooking) {
                 if (Inventory.getFirstCutFish() == null) return;
                 Inventory.toggleWithMode("cook");
                 } else {
+                    Buttons.closeAllDropdowns();
                     if (Inventory.instance != null) Inventory.instance.dispose();
                 }
                 if (Shop.instance != null) Shop.instance.dispose();         

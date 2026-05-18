@@ -32,9 +32,11 @@ public class Buy extends JPanel {
 
         storebackground.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
+                Buttons.closeAllDropdowns();
                 if (storeZone.contains(e.getPoint())) {
                     Shop.toggleShop("buy");
                 } else {
+                    Buttons.closeAllDropdowns();
                     if (Inventory.instance != null) Inventory.instance.dispose();
                     if (Shop.instance != null) Shop.instance.dispose();
                 }

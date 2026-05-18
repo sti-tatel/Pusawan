@@ -11,6 +11,9 @@ public class Shop extends JFrame {
     // ===== PRICES =====
     private static final java.util.Map<String, Integer> sellPrices = new java.util.LinkedHashMap<>();
     private static final java.util.Map<String, Integer> buyPrices  = new java.util.LinkedHashMap<>();
+    private static final java.util.Map<String, Integer> buyItems = new java.util.LinkedHashMap<>();
+
+    private boolean isBuyItemsTab = false;
 
     static {
         // cooked fish (highest value)
@@ -47,6 +50,9 @@ public class Shop extends JFrame {
         buyPrices.put("Insect Bait", 25);
         buyPrices.put("Fish Bait",   35);
         buyPrices.put("Magic Bait",  100);
+
+        buyItems.put("bambooRod", 2000);
+        buyItems.put("hotdogRod", 5000);
     }
 
     // ===== STATE =====
@@ -166,10 +172,24 @@ public class Shop extends JFrame {
 
         // --- BUY MODE: show only Buy tab ---
         } else if (mode.equals("buy")) {
-            JButton buyTab = makeTab("Buy", 0, 175);
-            setActive(buyTab);
-            // no action needed — buy tab is the only option
-            tabPanel.add(buyTab);
+            JButton buyBaitTab  = makeTab("Bait",  0,   175);
+            JButton buyItemsTab = makeTab("Items", 175, 175);
+            setActive(buyBaitTab);
+            setInactive(buyItemsTab);
+
+            buyBaitTab.addActionListener(e -> {
+                isBuyItemsTab = false;
+                setActive(buyBaitTab); setInactive(buyItemsTab);
+                refreshItems();
+            });
+            buyItemsTab.addActionListener(e -> {
+                isBuyItemsTab = true;
+                setActive(buyItemsTab); setInactive(buyBaitTab);
+                refreshItems();
+            });
+
+            tabPanel.add(buyBaitTab);
+            tabPanel.add(buyItemsTab);
 
         // --- BOTH MODE: show Sell / Buy tabs ---
         } else {
@@ -240,48 +260,49 @@ public class Shop extends JFrame {
         int i = 0;
 
         if (isBuyTab || shopMode.equals("buy")) {
+            java.util.Map<String, Integer> source = isBuyItemsTab ? buyItems : buyPrices;
             // --- BUY TAB: show purchasable baits ---
-            for (java.util.Map.Entry<String, Integer> entry : buyPrices.entrySet()) {
+            for (java.util.Map.Entry<String, Integer> entry : source.entrySet()) {
                 if (i >= 20) break;
-                String name  = entry.getKey();
-                int    price = entry.getValue();
+                        String name  = entry.getKey();
+                        int    price = entry.getValue();
 
-                JPanel slot = new JPanel(new BorderLayout());
-                slot.setBackground(new Color(90, 70, 45));
-                slot.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+                        JPanel slot = new JPanel(new BorderLayout());
+                        slot.setBackground(new Color(90, 70, 45));
+                        slot.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-                // image path: e.g. "Worm Bait" → wormBait.png
-                String baitPath = "/images/" + Character.toLowerCase(name.charAt(0))
-                    + name.substring(1).replace(" ", "") + ".png";
-                java.net.URL baitUrl = getClass().getResource(baitPath);
-                if (baitUrl != null) {
-                    ImageIcon icon = new ImageIcon(baitUrl);
-                    Image scaled = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                    JLabel iconLabel = new JLabel(name + "  ₱" + price, new ImageIcon(scaled), SwingConstants.CENTER);
-                    iconLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
-                    iconLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-                    iconLabel.setForeground(Color.WHITE);
-                    slot.add(iconLabel, BorderLayout.CENTER);
-                } else {
-                    JLabel itemLabel = new JLabel(name + "  ₱" + price, SwingConstants.CENTER);
-                    itemLabel.setForeground(Color.WHITE);
-                    itemLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-                    slot.add(itemLabel, BorderLayout.CENTER);
-                }
+                        java.net.URL imgUrl = getClass().getResource(resolveImagePath(name));
+                        if (imgUrl != null) {
+                            ImageIcon icon = new ImageIcon(imgUrl);
+                            Image scaled = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                            JLabel iconLabel = new JLabel(name + "  ₱" + price, new ImageIcon(scaled), SwingConstants.CENTER);
+                            iconLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
+                            iconLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+                            iconLabel.setForeground(Color.WHITE);
+                            slot.add(iconLabel, BorderLayout.CENTER);
+                        } else {
+                            JLabel itemLabel = new JLabel(name + "  ₱" + price, SwingConstants.CENTER);
+                            itemLabel.setForeground(Color.WHITE);
+                            itemLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+                            slot.add(itemLabel, BorderLayout.CENTER);
+                        }
 
-                JButton buyBtn = new JButton("Buy");
-                buyBtn.addActionListener(e -> {
-                    if (PlayerData.getMoney() >= price) {
-                        PlayerData.addMoney(-price);
-                        Inventory.addItem(name);
-                        refreshItems();
+                        boolean isRod = name.endsWith("Rod");
+                        boolean owned = isRod && Inventory.items.getOrDefault(name, 0) > 0;
+                        JButton buyBtn = new JButton(owned ? "Owned" : "Buy");
+                        buyBtn.setEnabled(!owned);
+                        buyBtn.addActionListener(e -> {
+                            if (PlayerData.getMoney() >= price) {
+                                PlayerData.addMoney(-price);
+                                Inventory.addItem(name);
+                                refreshItems();
+                            }
+                        });
+                        slot.add(buyBtn, BorderLayout.SOUTH);
+
+                        bg.add(slot);
+                        i++;
                     }
-                });
-                slot.add(buyBtn, BorderLayout.SOUTH);
-
-                bg.add(slot);
-                i++;
-            }
 
         } else {
             // --- SELL TAB: show sellable inventory items filtered by subtab ---
@@ -313,15 +334,8 @@ public class Shop extends JFrame {
                 slot.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
                 // image path resolution
-                String imagePath;
-                if (name.startsWith("Cooked "))
-                    imagePath = "/images/cooked_" + name.replace("Cooked ", "").toLowerCase() + ".png";
-                else if (name.startsWith("Cut "))
-                    imagePath = "/images/cut_" + name.replace("Cut ", "").toLowerCase() + ".png";
-                else
-                    imagePath = "/images/" + name.toLowerCase().replace(" ", "") + ".png";
-
-                java.net.URL imgUrl = getClass().getResource(imagePath);
+                java.net.URL imgUrl = getClass().getResource(resolveImagePath(name));
+                
                 if (imgUrl != null) {
                     ImageIcon icon = new ImageIcon(imgUrl);
                     Image scaled = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
@@ -394,18 +408,29 @@ public class Shop extends JFrame {
     public void dispose() {
         super.dispose();
         instance = null;
-        Game.hideOverlayIfNoModals();
+        if (Inventory.instance == null) Game.hideOverlay();
     }
 
     // ===== TOGGLE =====
     // call with "sell", "buy", or "both" — toggles the shop open/closed
     public static void toggleShop(String mode) {
-        if (Buttons.closeDropdown != null) Buttons.closeDropdown.run();
+        Buttons.closeAllDropdowns();
         if (instance != null && instance.isDisplayable()) {
             instance.dispose();
             return;
         }
         instance = new Shop(mode);
         Game.showOverlay();
+    }
+
+    private String resolveImagePath(String name) {
+        if (name.startsWith("Cooked "))
+            return "/images/cooked_" + name.replace("Cooked ", "").toLowerCase() + ".png";
+        if (name.startsWith("Cut "))
+            return "/images/cut_" + name.replace("Cut ", "").toLowerCase() + ".png";
+        if (name.endsWith("Bait"))
+            return "/images/" + Character.toLowerCase(name.charAt(0)) + name.substring(1).replace(" ", "") + ".png";
+        // default: camelCase
+        return "/images/" + Character.toLowerCase(name.charAt(0)) + name.substring(1).replace(" ", "") + ".png";
     }
 }

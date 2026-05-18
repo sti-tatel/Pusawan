@@ -32,7 +32,7 @@
             if (mode.equals("bait")) isBaitTab = true;
 
             setTitle("Inventory");
-            setSize(760, 620);
+            setSize(780, 553);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setUndecorated(true);
             setResizable(false);
@@ -51,7 +51,7 @@
             });
 
             JLayeredPane layeredPane = new JLayeredPane();
-            layeredPane.setBounds(0, 0, 760, 620);
+            layeredPane.setBounds(0, 0, 780, 553);
             addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     if (!layeredPane.getBounds().contains(e.getPoint())) {
@@ -61,22 +61,30 @@
             });
             add(layeredPane);
 
+
+            // ================= BACKGROUND =================
+            JPanel bgPanel = new JPanel() {
+                private Image bgImg = new ImageIcon(getClass().getResource("/images/inventorybg.png")).getImage();
+                @Override
+                protected void paintComponent(Graphics g) {
+                    g.drawImage(bgImg, 0, 0, getWidth(), getHeight(), this);
+                }
+            };
+            bgPanel.setOpaque(true);
+            bgPanel.setBounds(0, 0, 780, 553);
+            layeredPane.add(bgPanel, Integer.valueOf(-1));
+
             // ================= HEADER =================
             JPanel header = new JPanel(null);
-            header.setBounds(30, 0, 700, 40);
-            header.setOpaque(true);
-            header.setBackground(new Color(0xbe0000));
-
-            JLabel title = new JLabel(new ImageIcon(getClass().getResource("/images/inventoryTitle.png")));
-            title.setBounds(0, 0, 700, 40);
-            header.add(title);
+            header.setBounds(0, 0, 780, 553);
+            header.setOpaque(false);
 
             JButton closeBtn = new JButton("X");
-            closeBtn.setBounds(650, 0, 50, 40);
+            closeBtn.setBounds(757, 5, 45, 45);
             closeBtn.setBorderPainted(false);
             closeBtn.setContentAreaFilled(false);
             closeBtn.setFocusPainted(false);
-            closeBtn.setForeground(Color.WHITE);
+            closeBtn.setForeground(Color.RED);
             closeBtn.setFont(new Font("Arial", Font.BOLD, 16));
             closeBtn.addActionListener(e -> dispose());
             header.add(closeBtn);
@@ -84,25 +92,23 @@
             layeredPane.add(header, JLayeredPane.PALETTE_LAYER);
 
             // ================= COINS =================
-            JPanel coinsPanel = new JPanel(null);
-            coinsPanel.setBounds(30, 45, 700, 45);
-            coinsPanel.setBackground(new Color(150, 120, 60));
+            // JPanel coinsPanel = new JPanel(null);
+            // coinsPanel.setBounds(30, 45, 700, 45);
+            // coinsPanel.setBackground(new Color(150, 120, 60));
 
-            JLabel coinsLabel = PlayerData.createMoneyLabel();
-            coinsLabel.setBounds(10, 8, 300, 30);
-            coinsLabel.setFont(new Font("Arial", Font.BOLD, 20));
-            coinsLabel.setForeground(Color.WHITE);
-            coinsPanel.add(coinsLabel);
+            // JLabel coinsLabel = PlayerData.createMoneyLabel();
+            // coinsLabel.setBounds(10, 8, 300, 30);
+            // coinsLabel.setFont(new Font("Arial", Font.BOLD, 20));
+            // coinsLabel.setForeground(Color.WHITE);
+            // coinsPanel.add(coinsLabel);
 
-            layeredPane.add(coinsPanel, JLayeredPane.DEFAULT_LAYER);
+            // layeredPane.add(coinsPanel, JLayeredPane.DEFAULT_LAYER);
 
-            // ================= TABS =================
-            JPanel tabPanel = new JPanel(null);
-            tabPanel.setBounds(30, 95, 700, 40);
-            tabPanel.setBackground(new Color(40, 30, 20));
+            // ===== TAB LAYOUT =====
+            int tx = 42, tabY = 68, tW = 100, tH = 30, tG = 5;
 
             JButton fishTab = new JButton("Fish");
-            fishTab.setBounds(0, 0, 175, 40);
+            fishTab.setBounds(tx, tabY, tW, tH);
             fishTab.setFont(new Font("Arial", Font.BOLD, 14));
             fishTab.setBackground(new Color(90, 70, 45));
             fishTab.setForeground(Color.WHITE);
@@ -110,7 +116,7 @@
             fishTab.setBorderPainted(false);
 
             JButton itemsTab = new JButton("Items");
-            itemsTab.setBounds(175, 0, 175, 40);
+            itemsTab.setBounds(tx + tW + tG, tabY, tW, tH);
             itemsTab.setFont(new Font("Arial", Font.BOLD, 14));
             itemsTab.setBackground(new Color(50, 40, 30));
             itemsTab.setForeground(new Color(180, 160, 120));
@@ -118,7 +124,7 @@
             itemsTab.setBorderPainted(false);
 
             JButton baitTab = new JButton("Bait");
-            baitTab.setBounds(350, 0, 175, 40);
+            baitTab.setBounds(tx + (tW + tG) * 2, tabY, tW, tH);
             baitTab.setFont(new Font("Arial", Font.BOLD, 14));
             baitTab.setBackground(new Color(50, 40, 30));
             baitTab.setForeground(new Color(180, 160, 120));
@@ -178,6 +184,10 @@
                 refreshItems();
             });
 
+            JPanel tabPanel = new JPanel(null);
+            tabPanel.setBounds(30, 60, 380, 35);
+            tabPanel.setOpaque(false);
+
             tabPanel.add(fishTab);
             tabPanel.add(baitTab);
             tabPanel.add(itemsTab);
@@ -185,9 +195,10 @@
 
             // ================= GRID =================
             bg = new JPanel();
-            bg.setBackground(new Color(186, 160, 84));
-            bg.setBounds(30, 140, 700, 440);
-            bg.setLayout(new GridLayout(4, 5, 5, 5));
+            bg.setBounds(33, 100, 714, 427);
+            bg.setOpaque(false);
+            bg.setBackground(new Color(0, 0, 0, 0));
+            bg.setLayout(new GridLayout(4, 5, 2, 2));
             bg.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
             layeredPane.add(bg, JLayeredPane.DEFAULT_LAYER);
@@ -225,9 +236,15 @@
                 }
 
 
-                JPanel slot = new JPanel(new BorderLayout());
-                slot.setBackground(new Color(200, 180, 120));
-                slot.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+                JPanel slot = new JPanel(new BorderLayout()) {
+                    private Image slotImg = new ImageIcon(getClass().getResource("/images/slotbg.png")).getImage();
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        g.drawImage(slotImg, 0, 0, getWidth(), getHeight(), this);
+                    }
+                };
+                slot.setOpaque(false);
+                slot.setBorder(null);
 
                 // ================= MOUSE EVENTS =================
                 slot.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -240,19 +257,44 @@
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         slot.setBackground(Color.YELLOW);
 
-                        if (mode.equals("inventory")) {
-                            // show delete button as popup next to slot
-                            JPopupMenu popup = new JPopupMenu();
-                            JButton deleteBtn = new JButton("Delete");
-                            deleteBtn.addActionListener(ev -> {
-                                Inventory.removeItem(itemName);
-                                popup.setVisible(false);
-                                refreshItems();
-                            });
-                            popup.add(deleteBtn);
-                            popup.show(slot, slot.getWidth(), 0);
-                            return;
+                    if (mode.equals("inventory")) {
+                        JPopupMenu popup = new JPopupMenu();
+
+                        boolean isRod = itemName.endsWith("Rod");
+
+                        if (isRod) {
+                            boolean isEquipped = itemName.equals(PlayerData.equippedRod);
+
+                            if (isEquipped) {
+                                JButton unequipBtn = new JButton("Unequip");
+                                unequipBtn.addActionListener(ev -> {
+                                    PlayerData.equippedRod = null;
+                                    popup.setVisible(false);
+                                    refreshItems();
+                                });
+                                popup.add(unequipBtn);
+                            } else {
+                                JButton equipBtn = new JButton("Equip");
+                                equipBtn.addActionListener(ev -> {
+                                    PlayerData.equippedRod = itemName;
+                                    popup.setVisible(false);
+                                    refreshItems();
+                                });
+                                popup.add(equipBtn);
+                            }
                         }
+
+                        JButton deleteBtn = new JButton("Delete");
+                        deleteBtn.addActionListener(ev -> {
+                            if (itemName.equals(PlayerData.equippedRod)) PlayerData.equippedRod = null;
+                            Inventory.removeItem(itemName);
+                            popup.setVisible(false);
+                            refreshItems();
+                        });
+                        popup.add(deleteBtn);
+                        popup.show(slot, slot.getWidth(), 0);
+                        return;
+                    }
 
                         if (mode.equals("cut")) {
                             Inventory.removeItem(itemName);
@@ -270,7 +312,11 @@
                             instance = null;
                         }
                         if (mode.equals("bait")) {
-                            Fishing.setSelectedBait(itemName);
+                            if (Fishing.selectedBait.equals(itemName)) {
+                                Fishing.setSelectedBait("No Bait");
+                            } else {
+                                Fishing.setSelectedBait(itemName);
+                            }
                             dispose();
                             instance = null;
                         }
@@ -326,6 +372,14 @@
                 }
 
                 // ================= COUNT =================
+                if (itemName.equals(PlayerData.equippedRod)) {
+                    JLabel equippedLabel = new JLabel("Equipped");
+                    equippedLabel.setFont(new Font("Arial", Font.BOLD, 10));
+                    equippedLabel.setForeground(Color.GREEN);
+                    equippedLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                    slot.add(equippedLabel, BorderLayout.NORTH);
+                }
+
                 if (count > 1) {
                     JLabel countLabel = new JLabel("x" + count);
                     countLabel.setFont(new Font("Arial", Font.BOLD, 12));
@@ -339,9 +393,14 @@
 
             // fill empty slots
             while (i < 20) {
-                JPanel slot = new JPanel();
-                slot.setBackground(new Color(200, 180, 120));
-                slot.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+            JPanel slot = new JPanel() {
+                private Image slotImg = new ImageIcon(getClass().getResource("/images/slotbg.png")).getImage();
+                @Override
+                protected void paintComponent(Graphics g) {
+                    g.drawImage(slotImg, 0, 0, getWidth(), getHeight(), this);
+                }
+            };
+            slot.setOpaque(false);
                 bg.add(slot);
                 i++;
             }
@@ -361,7 +420,7 @@
             super.dispose();
             instance = null;
             Buttons.updateInventoryIcon();
-            Game.hideOverlayIfNoModals();
+            if (Shop.instance == null) Game.hideOverlay();
         }
 
         // ================= REMOVE ITEM =================
@@ -393,7 +452,7 @@
 
         // ================= TOGGLE =================
         public static void toggleInventory() {
-            if (Buttons.closeDropdown != null) Buttons.closeDropdown.run();
+            Buttons.closeAllDropdowns();
             if (instance != null && instance.isDisplayable()) {
                 instance.dispose();
                 return;
@@ -406,7 +465,7 @@
 
         // ================= TOGGLE WITH MODE =================
         public static void toggleWithMode(String mode) {
-            if (Buttons.closeDropdown != null) Buttons.closeDropdown.run();
+            Buttons.closeAllDropdowns();
             if (instance != null && instance.isDisplayable()) {
                 instance.dispose();
                 return;

@@ -57,6 +57,7 @@ public class Start extends JPanel {
 
     class BackgroundPanel extends JPanel {
 
+        @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             if (titleScreen != null) {

@@ -11,6 +11,8 @@ public class Cutting extends JPanel {
     private BufferedImage bg;
     private Image hover;
 
+    
+
     // HITBOX
     private boolean hovering = false;
     private boolean cutting = false;
@@ -23,6 +25,7 @@ public class Cutting extends JPanel {
     private Timer cutTimer;
 
     private static Cutting instance;
+    private JButton menuButton;
     public static boolean isCutting = false;
 
     public static void playCutGif(String fishName) {
@@ -30,11 +33,14 @@ public class Cutting extends JPanel {
             return;
         isCutting = true;
         instance.cutting = true;
+        Buttons.closeAllDropdowns();
+        instance.menuButton.setEnabled(false);
         instance.showPopup("Consumed: " + fishName + " → Added: Cut " + fishName);
         instance.repaint();
         new Timer(8000, e -> {
             isCutting = false;
             instance.cutting = false;
+            instance.menuButton.setEnabled(true);
             instance.repaint();
             ((Timer) e.getSource()).stop();
         }).start();
@@ -50,7 +56,7 @@ public class Cutting extends JPanel {
         add(panel, BorderLayout.CENTER);
         panel.setLayout(null);
 
-        JButton menuButton = Buttons.toDropdown();
+        menuButton = Buttons.toDropdown();
         menuButton.setBounds(20, 20, 64, 64);
         panel.add(menuButton);
 
@@ -73,11 +79,12 @@ public class Cutting extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 Point p = e.getPoint();
-
-            if ((knifeZone.contains(p) || boardZone.contains(p)) && !Cutting.isCutting) {
+                Buttons.closeAllDropdowns();
+                if ((knifeZone.contains(p) || boardZone.contains(p)) && !Cutting.isCutting) {
                 if (Inventory.getFirstFish() == null) return;
                 Inventory.toggleWithMode("cut");
             } else {
+                Buttons.closeAllDropdowns();
                 if (Inventory.instance != null) Inventory.instance.dispose();
             }
             if (Shop.instance != null) Shop.instance.dispose();

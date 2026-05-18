@@ -10,7 +10,6 @@ public class Sell extends JPanel {
     private boolean hovering = false;
     private Rectangle sellZone = new Rectangle(180, 65, 830, 585);
 
-
     public Sell() {
         sellBackgroundGif = new ImageIcon(getClass().getResource("/images/sell.gif"));
         hover = new ImageIcon(getClass().getResource("/images/sellSelected.png")).getImage();
@@ -30,21 +29,32 @@ public class Sell extends JPanel {
         inventoryButton.setBounds(20, 505, 100, 100);
         bg.add(inventoryButton);
 
+        // intercept ALL presses before any button responds
+        bg.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (Shop.instance != null) {
+                    Shop.instance.dispose();
+                    e.consume();
+                    return;
+                }
+            }
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (Shop.instance != null) return;
+                if (sellZone.contains(e.getPoint())) {
+                    hovering = false;
+                    repaint();
+                    Buttons.closeAllDropdowns();
+                    Shop.toggleShop("sell");
+                } else {
+                    if (Inventory.instance != null) Inventory.instance.dispose();
+                }
+            }
+        });
+
         bg.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent e) {
                 hovering = sellZone.contains(e.getPoint()) && Shop.instance == null;
                 repaint();
-            }
-        });
-
-        bg.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (inventoryButton.getBounds().contains(e.getPoint())) return;
-                if (sellZone.contains(e.getPoint())) {
-                    Shop.toggleShop("sell");
-                } else {
-                    if (Shop.instance != null) Shop.instance.dispose();
-                }
             }
         });
     }

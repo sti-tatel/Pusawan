@@ -7,11 +7,23 @@ import javax.swing.JLabel;
 public class PlayerData {
     private static int money = 99999999;
 
+    public static String equippedRod = null;
+
     public static int getMoney() {
         return money;
     }
 
     private static java.util.List<java.lang.ref.WeakReference<JLabel>> moneyLabels = new java.util.ArrayList<>();
+
+    private static java.util.Map<String, Integer> caughtCounts = new java.util.LinkedHashMap<>();
+
+    public static int getCaughtCount(String fish) {
+        return caughtCounts.getOrDefault(fish, 0);
+    }
+
+    public static void incrementCaught(String fish) {
+        caughtCounts.put(fish, caughtCounts.getOrDefault(fish, 0) + 1);
+    }
 
     public static JLabel createMoneyLabel() {
         JLabel label = new JLabel("₱" + money);

@@ -1,7 +1,6 @@
   package Pusawan;
   
   import javax.sound.sampled.*;
-  import java.io.File;
   
   public class AudioPlayer {
   
@@ -9,15 +8,15 @@
   
       public static void playMusic() {
           try {
-              File audioFile = new File("Pusawan-main/Pusawan/class/audio/bgmusic.wav");
-  
-              AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(
+                AudioPlayer.class.getResource("/audio/morningMood.wav"));
   
               clip = AudioSystem.getClip();
               clip.open(audioStream);
   
               // Loop forever
               clip.loop(Clip.LOOP_CONTINUOUSLY);
+              
   
               // Start music
               clip.start();

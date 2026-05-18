@@ -8,7 +8,7 @@ import javax.swing.*;
 
 public class Buttons extends JPanel {
 
-    public static Runnable closeDropdown;
+    public static final java.util.List<Runnable> dropdownClosers = new java.util.ArrayList<>();
     
     public static JButton inventoryButtonRef;
     
@@ -57,36 +57,24 @@ public class Buttons extends JPanel {
         inner.add(sell);
 
         boolean[] open = {false};
-        int[] currentH = {0};
-        Timer[] animTimer = {null};
-        
+        // int[] currentH = {0};
+        // Timer[] animTimer = {null};
+
         Runnable close = () -> {
+            if (!open[0]) return;
             open[0] = false;
             if (Inventory.instance != null) Inventory.instance.dispose();
             if (Shop.instance != null) Shop.instance.dispose();
-            if (animTimer[0] != null) animTimer[0].stop();
-            animTimer[0] = new Timer(0, null);
-            animTimer[0].addActionListener(ev -> {
-                currentH[0] = Math.max(currentH[0] - 50, 0);
-                Point loc = clipPanel.getLocation();
-                clipPanel.setBounds(loc.x, loc.y, 64, Math.max(currentH[0], 1));
-                inner.setBounds(0, currentH[0] - fullHeight, 64, fullHeight);
-               if (clipPanel.getParent() != null) clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
-                if (currentH[0] <= 0) {
-                    ((Timer) ev.getSource()).stop();
-                    clipPanel.setVisible(false);
-                    if (clipPanel.getParent() != null) {
-                        ((Timer) ev.getSource()).stop();
-                        JLayeredPane lp = (JLayeredPane) clipPanel.getParent();
-                        lp.remove(clipPanel);
-                        lp.repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
-                    }
-                }
-            });
-            animTimer[0].start();
+            clipPanel.setVisible(false);
+            if (clipPanel.getParent() != null) {
+                JLayeredPane lp = (JLayeredPane) clipPanel.getParent();
+                lp.remove(clipPanel);
+                lp.repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
+            }
         };
 
-        closeDropdown = close;
+        dropdownClosers.add(close);
+
 
         mainMenu.addActionListener(e -> { close.run(); Game.navigate(Game.START); });
         fishing.addActionListener(e ->  { close.run(); Game.navigate(Game.GAME); });
@@ -100,25 +88,13 @@ public class Buttons extends JPanel {
             JLayeredPane lp = Game.layeredPane();
             if (lp == null) return;
             Point p = SwingUtilities.convertPoint(menuButton.getParent(), menuButton.getLocation(), lp);
-            currentH[0] = 0;
-            inner.setBounds(0, -fullHeight, 64, fullHeight);
-            clipPanel.setBounds(p.x, p.y + menuButton.getHeight(), 64, 1);
+            inner.setBounds(0, 0, 64, fullHeight);
+            clipPanel.setBounds(p.x, p.y + menuButton.getHeight(), 64, fullHeight);
             clipPanel.setVisible(true);
             lp.add(clipPanel, JLayeredPane.POPUP_LAYER);
+            lp.revalidate();
+            lp.repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
             open[0] = true;
-
-            if (animTimer[0] != null) animTimer[0].stop();
-            animTimer[0] = new Timer(0, null);
-            animTimer[0].addActionListener(ev -> {
-                currentH[0] = Math.min(currentH[0] + 50, fullHeight);
-                Point loc = clipPanel.getLocation();
-                clipPanel.setBounds(loc.x, loc.y, 64, currentH[0]);
-                inner.setBounds(0, currentH[0] - fullHeight, 64, fullHeight);
-                clipPanel.repaint();
-                if (clipPanel.getParent() != null) clipPanel.getParent().repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
-                if (currentH[0] >= fullHeight) ((Timer) ev.getSource()).stop();
-            });
-            animTimer[0].start();
         });
 
         return menuButton;
@@ -213,5 +189,9 @@ public class Buttons extends JPanel {
         storeButton.setFocusPainted(false);
         storeButton.addActionListener(e -> Game.navigate(Game.STORE));
         return storeButton;
+    }
+
+    public static void closeAllDropdowns() {
+        for (Runnable r : dropdownClosers) r.run();
     }
 }
