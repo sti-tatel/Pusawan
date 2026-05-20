@@ -1,5 +1,10 @@
 @echo off
-REM commit only when there are changes
+
+REM remove any large zip files from tracking
+git rm --cached *.zip 2>nul
+echo "*.zip" >> .gitignore
+
+REM stage and commit if there are changes
 git status --porcelain | findstr /R /C:".*" >nul
 if %errorlevel%==0 (
   git add .
@@ -8,7 +13,12 @@ if %errorlevel%==0 (
   echo No changes to commit.
 )
 
-REM cleanup local git object database before pushing
+REM rewrite history to remove any zip files from all past commits
+git filter-branch --force --index-filter "git rm --cached --ignore-unmatch *.zip" --prune-empty --tag-name-filter cat -- --all
+
+REM clean up git object database
+git reflog expire --expire=now --all
 git gc --aggressive --prune=now
 
-git push origin master
+REM force push to overwrite remote history
+git push origin master --force
