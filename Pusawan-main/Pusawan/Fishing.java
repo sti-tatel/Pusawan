@@ -67,10 +67,10 @@ public class Fishing extends JPanel {
         background.add(inventoryButton);
 
         //INDEX BUTTON
-        // JButton indexButton = new JButton("Index");
-        // indexButton.setBounds(20, 620, 80, 30);
-        // indexButton.addActionListener(e -> FishIndex.toggle()); 
-        // background.add(indexButton);
+        JButton indexButton = new JButton("Index");
+        indexButton.setBounds(20, 620, 80, 30);
+        indexButton.addActionListener(e -> FishIndex.toggle()); 
+        background.add(indexButton);
 
         cancelButton = new JButton("Cancel");
         cancelButton.setBounds(20, 460, 100, 40);
@@ -160,18 +160,21 @@ public class Fishing extends JPanel {
         }
 
         // ===== MINIGAME INPUT =====
-        private void handleMinigameInput() {
-            float greenLeft  = fishIndicator * (1f - greenZoneWidth);
-            float greenRight = greenLeft + greenZoneWidth;
-            boolean inGreen  = greenLeft <= 0.5f && greenRight >= 0.5f;
+        private boolean hadProgress = false;
+    private void handleMinigameInput() {
+        float greenLeft  = fishIndicator * (1f - greenZoneWidth);
+        float greenRight = greenLeft + greenZoneWidth;
+        boolean inGreen  = greenLeft <= 0.5f && greenRight >= 0.5f;
 
-            if (inGreen) {
-                catchProgress = Math.min(1f, catchProgress + 0.2f);
-                if (catchProgress >= 1f) completeCatch();
-            } else {
-                catchProgress = Math.max(0f, catchProgress - 0.15f);
-            }
+        if (inGreen) {
+            catchProgress = Math.min(1f, catchProgress + 0.2f);
+            hadProgress = true;
+            if (catchProgress >= 1f) completeCatch();
+        } else {
+            catchProgress = Math.max(0f, catchProgress - 0.15f);
+            if (catchProgress <= 0f && hadProgress) failCatch();
         }
+    }
 
         // called when catch progress fills up
         private void completeCatch() {
@@ -194,6 +197,24 @@ public class Fishing extends JPanel {
             }
 
             // hide result after 2 seconds
+            new Timer(2000, ev -> {
+                showFishResult = false;
+                repaint();
+                ((Timer) ev.getSource()).stop();
+            }).start();
+        }
+
+        // FAIL STATE
+        private void failCatch() {
+            fishingInProgress = false;
+            hadProgress       = false;
+            catchProgress     = 0f;
+            showFishResult    = true;
+            lastCaughtFish    = null;
+            menuButton.setVisible(true);
+            inventoryButton.setVisible(true);
+            cancelButton.setVisible(false);
+
             new Timer(2000, ev -> {
                 showFishResult = false;
                 repaint();
@@ -259,7 +280,17 @@ public class Fishing extends JPanel {
 
         // draws the catch result banner
         private void drawFishResult(Graphics g) {
-            if (!showFishResult || lastCaughtFish == null) return;
+            if (!showFishResult) return;
+            if (lastCaughtFish == null) {
+                g.setColor(new Color(0, 0, 0, 150));
+                g.fillRect(0, getHeight() / 2 - 50, getWidth(), 100);
+                g.setColor(Color.RED);
+                g.setFont(new Font("Arial", Font.BOLD, 36));
+                String fail = "The fish got away!";
+                int tw = g.getFontMetrics().stringWidth(fail);
+                g.drawString(fail, (getWidth() - tw) / 2, getHeight() / 2 + 10);
+                return;
+            }
 
             g.setColor(new Color(0, 0, 0, 150));
             g.fillRect(0, getHeight() / 2 - 50, getWidth(), 100);
@@ -311,6 +342,7 @@ public class Fishing extends JPanel {
             lastCaughtFish    = null;
             fishingInProgress = true;
             catchProgress     = 0f;
+            hadProgress = false;
             fishIndicator     = 0f;
             indicatorDir      = 1f;
             lastCaughtFish    = pickCatch();

@@ -32,7 +32,7 @@
             if (mode.equals("bait")) isBaitTab = true;
 
             setTitle("Inventory");
-            setSize(780, 553);
+            setSize(998, 580);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setUndecorated(true);
             setResizable(false);
@@ -51,7 +51,7 @@
             });
 
             JLayeredPane layeredPane = new JLayeredPane();
-            layeredPane.setBounds(0, 0, 780, 553);
+            layeredPane.setBounds(0, 0, 998, 580);
             addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     if (!layeredPane.getBounds().contains(e.getPoint())) {
@@ -71,7 +71,7 @@
                 }
             };
             bgPanel.setOpaque(true);
-            bgPanel.setBounds(0, 0, 780, 553);
+            bgPanel.setBounds(0, 0, 998, 580);
             layeredPane.add(bgPanel, Integer.valueOf(-1));
 
             // ================= HEADER =================
@@ -79,17 +79,17 @@
             header.setBounds(0, 0, 780, 553);
             header.setOpaque(false);
 
-            JButton closeBtn = new JButton("X");
-            closeBtn.setBounds(757, 5, 45, 45);
+            JButton closeBtn = new JButton();
+            closeBtn.setBounds(945, 24, 53, 53);
             closeBtn.setBorderPainted(false);
             closeBtn.setContentAreaFilled(false);
             closeBtn.setFocusPainted(false);
-            closeBtn.setForeground(Color.RED);
-            closeBtn.setFont(new Font("Arial", Font.BOLD, 16));
+            closeBtn.setOpaque(false);
             closeBtn.addActionListener(e -> dispose());
             header.add(closeBtn);
 
             layeredPane.add(header, JLayeredPane.PALETTE_LAYER);
+            layeredPane.add(closeBtn, JLayeredPane.MODAL_LAYER);
 
             // ================= COINS =================
             // JPanel coinsPanel = new JPanel(null);
@@ -194,17 +194,27 @@
             layeredPane.add(tabPanel, JLayeredPane.DEFAULT_LAYER);
 
             // ================= GRID =================
-            bg = new JPanel();
-            bg.setBounds(33, 100, 714, 427);
+            bg = new JPanel(new WrapLayout(FlowLayout.LEFT, 12, 12));
             bg.setOpaque(false);
             bg.setBackground(new Color(0, 0, 0, 0));
-            bg.setLayout(new GridLayout(4, 5, 2, 2));
-            bg.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            bg.setBorder(BorderFactory.createEmptyBorder(9, 9, 10, 10));
 
-            layeredPane.add(bg, JLayeredPane.DEFAULT_LAYER);
+            JPanel bgWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            bgWrapper.setOpaque(false);
+            bgWrapper.add(bg);
 
-            
-            setVisible(true);
+            JScrollPane scrollPane = new JScrollPane(bgWrapper);
+            scrollPane.setBounds(33, 100, 840, 440);
+            scrollPane.setOpaque(false);
+            scrollPane.getViewport().setOpaque(false);
+            scrollPane.setBorder(null);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+
+            layeredPane.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
+
+                
+                setVisible(true);
         }
 
         // ================= REFRESH =================
@@ -244,6 +254,7 @@
                     }
                 };
                 slot.setOpaque(false);
+                slot.setPreferredSize(new Dimension(80, 80));
                 slot.setBorder(null);
 
                 // ================= MOUSE EVENTS =================
@@ -362,9 +373,9 @@
 
                 if (imgUrl != null) {
                     ImageIcon icon = new ImageIcon(imgUrl);
-                    Image scaled = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+                    Image scaled = icon.getImage().getScaledInstance(56, 56, Image.SCALE_SMOOTH);
                     JLabel iconLabel = new JLabel(itemName, new ImageIcon(scaled), SwingConstants.CENTER);
-                    iconLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
+                    iconLabel.setVerticalTextPosition(SwingConstants.CENTER);
                     iconLabel.setHorizontalTextPosition(SwingConstants.CENTER);
                     slot.add(iconLabel, BorderLayout.CENTER);
                 } else {
@@ -384,7 +395,7 @@
                     JLabel countLabel = new JLabel("x" + count);
                     countLabel.setFont(new Font("Arial", Font.BOLD, 12));
                     countLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-                    slot.add(countLabel, BorderLayout.SOUTH);
+                    slot.add(countLabel, BorderLayout.NORTH);
                 }
 
                 bg.add(slot);
@@ -401,6 +412,7 @@
                 }
             };
             slot.setOpaque(false);
+            slot.setPreferredSize(new Dimension(80, 80));
                 bg.add(slot);
                 i++;
             }
