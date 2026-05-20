@@ -37,7 +37,7 @@ public class Buy extends JPanel {
                     Shop.toggleShop("buy");
                 } else {
                     Buttons.closeAllDropdowns();
-                    if (Inventory.instance != null) Inventory.instance.dispose();
+                    if (Inventory.instance != null) Inventory.instance.closeInventory();
                     if (Shop.instance != null) Shop.instance.dispose();
                 }
             }

@@ -46,7 +46,7 @@ public class Sell extends JPanel {
                     Buttons.closeAllDropdowns();
                     Shop.toggleShop("sell");
                 } else {
-                    if (Inventory.instance != null) Inventory.instance.dispose();
+                    if (Inventory.instance != null) Inventory.instance.closeInventory();
                 }
             }
         });

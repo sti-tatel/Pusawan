@@ -85,7 +85,7 @@ public class Cutting extends JPanel {
                 Inventory.toggleWithMode("cut");
             } else {
                 Buttons.closeAllDropdowns();
-                if (Inventory.instance != null) Inventory.instance.dispose();
+                if (Inventory.instance != null) Inventory.instance.closeInventory();
             }
             if (Shop.instance != null) Shop.instance.dispose();
             }

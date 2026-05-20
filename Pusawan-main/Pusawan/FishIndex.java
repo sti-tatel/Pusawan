@@ -68,6 +68,7 @@ public class FishIndex extends JFrame {
         closeBtn.setBorderPainted(false);
         closeBtn.setContentAreaFilled(false);
         closeBtn.setFocusPainted(false);
+        Buttons.addClickSound(closeBtn);
         closeBtn.setForeground(Color.WHITE);
         closeBtn.setFont(new Font("Arial", Font.BOLD, 16));
         closeBtn.addActionListener(e -> dispose());

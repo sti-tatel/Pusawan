@@ -14,12 +14,17 @@ public class Buttons extends JPanel {
     
     private static final java.util.List<JButton> inventoryButtons = new java.util.ArrayList<>();
 
+    public static void addClickSound(JButton button) {
+        button.addActionListener(e -> AudioPlayer.playSound("click.wav"));
+    }
+
     public static JButton toDropdown() {
         ImageIcon menuButtonImage = new ImageIcon(Buttons.class.getResource("/images/menu.png"));
         JButton menuButton = new JButton(menuButtonImage);
         menuButton.setBorderPainted(false);
         menuButton.setContentAreaFilled(false);
         menuButton.setFocusPainted(false);
+        addClickSound(menuButton);
 
         int itemHeight = 64;
         int totalItems = 6;
@@ -40,6 +45,12 @@ public class Buttons extends JPanel {
         JButton cooking  = new JButton(new ImageIcon(Buttons.class.getResource("/images/cookIconStatic.png")));
         JButton store    = new JButton(new ImageIcon(Buttons.class.getResource("/images/store.png")));
         JButton sell     = new JButton(new ImageIcon(Buttons.class.getResource("/images/sell.png")));
+        addClickSound(mainMenu);
+        addClickSound(fishing);
+        addClickSound(cutting);
+        addClickSound(cooking);
+        addClickSound(store);
+        addClickSound(sell);
 
         Insets zero = new Insets(0, 0, 0, 0);
         for (JButton b : new JButton[]{mainMenu, fishing, cutting, cooking, store, sell}) {
@@ -63,11 +74,12 @@ public class Buttons extends JPanel {
         Runnable close = () -> {
             if (!open[0]) return;
             open[0] = false;
-            if (Inventory.instance != null) Inventory.instance.dispose();
+            if (Inventory.instance != null) Inventory.instance.closeInventory();
             if (Shop.instance != null) Shop.instance.dispose();
             clipPanel.setVisible(false);
-            if (clipPanel.getParent() != null) {
-                JLayeredPane lp = (JLayeredPane) clipPanel.getParent();
+            java.awt.Container parent = clipPanel.getParent();
+            if (parent instanceof JLayeredPane) {
+                JLayeredPane lp = (JLayeredPane) parent;
                 lp.remove(clipPanel);
                 lp.repaint(clipPanel.getX(), clipPanel.getY(), 64, fullHeight);
             }
@@ -106,6 +118,7 @@ public class Buttons extends JPanel {
         startButton.setBorderPainted(false);
         startButton.setContentAreaFilled(false);
         startButton.setFocusPainted(false);
+        addClickSound(startButton);
         startButton.setSize(startButtonImage.getIconWidth(), startButtonImage.getIconHeight());
         startButton.addActionListener(e -> action.run());
         return startButton;
@@ -117,6 +130,7 @@ public class Buttons extends JPanel {
         menuButton.setBorderPainted(false);
         menuButton.setContentAreaFilled(false);
         menuButton.setFocusPainted(false);
+        addClickSound(menuButton);
         menuButton.addActionListener(e -> Game.navigate(Game.START));
         return menuButton;
     }
@@ -129,6 +143,7 @@ public class Buttons extends JPanel {
         inventoryButton.setBorderPainted(false);
         inventoryButton.setContentAreaFilled(false);
         inventoryButton.setFocusPainted(false);
+        addClickSound(inventoryButton);
 
         inventoryButton.addActionListener(e -> {
             Inventory.toggleInventory();
@@ -164,6 +179,7 @@ public class Buttons extends JPanel {
         cuttingButton.setBorderPainted(false);
         cuttingButton.setContentAreaFilled(false);
         cuttingButton.setFocusPainted(false);
+        addClickSound(cuttingButton);
         cuttingButton.addActionListener(e -> Game.navigate(Game.CUTTING));
         return cuttingButton;
     }
@@ -177,6 +193,7 @@ public class Buttons extends JPanel {
         cookingButton.setBorderPainted(false);
         cookingButton.setContentAreaFilled(false);
         cookingButton.setFocusPainted(false);
+        addClickSound(cookingButton);
         cookingButton.addActionListener(e -> Game.navigate(Game.COOKING));
         return cookingButton;
     }
@@ -187,6 +204,7 @@ public class Buttons extends JPanel {
         storeButton.setBorderPainted(false);
         storeButton.setContentAreaFilled(false);
         storeButton.setFocusPainted(false);
+        addClickSound(storeButton);
         storeButton.addActionListener(e -> Game.navigate(Game.STORE));
         return storeButton;
     }

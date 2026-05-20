@@ -75,6 +75,7 @@ public class Fishing extends JPanel {
         cancelButton = new JButton("Cancel");
         cancelButton.setBounds(20, 460, 100, 40);
         cancelButton.setVisible(false);
+        Buttons.addClickSound(cancelButton);
         cancelButton.addActionListener(e -> cancelFishing());
         background.add(cancelButton);
 
@@ -153,7 +154,7 @@ public class Fishing extends JPanel {
 
                     // click elsewhere — close modals
                     Buttons.closeAllDropdowns();
-                    if (Inventory.instance != null) { Inventory.instance.dispose(); Inventory.instance = null; }
+                    if (Inventory.instance != null) { Inventory.instance.closeInventory(); }
                     if (Shop.instance != null)      { Shop.instance.dispose();      Shop.instance = null; }
                 }
             });

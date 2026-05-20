@@ -40,7 +40,7 @@ public class Game extends JFrame {
 
     public static void navigate(String screen) {
         Buttons.closeAllDropdowns();
-        if (Inventory.instance != null) { Inventory.instance.dispose(); Inventory.instance = null; }
+        if (Inventory.instance != null) { Inventory.instance.closeInventory(); }
         if (Shop.instance != null) { Shop.instance.dispose(); Shop.instance = null; }
         hideOverlay();
 
@@ -69,10 +69,8 @@ public class Game extends JFrame {
         instance.cardLayout.show(instance.container, screen);
         if (screen.equals(START)) {
             AudioPlayer.playMusic("tropicalBreeze.wav");
-        } else if (screen.equals(GAME)) {
+        } else if (screen.equals(GAME) && !AudioPlayer.isPlaying("morningMood.wav")) {
             AudioPlayer.playMusic("morningMood.wav");
-        } else {
-            AudioPlayer.stopMusic();
         }
     }
     public static JLayeredPane layeredPane() {
@@ -93,7 +91,7 @@ public class Game extends JFrame {
             overlay.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     if (Shop.instance != null) Shop.instance.dispose();
-                    if (Inventory.instance != null) Inventory.instance.dispose();
+                    if (Inventory.instance != null) Inventory.instance.closeInventory();
                 }
             });
             instance.getLayeredPane().add(overlay, JLayeredPane.MODAL_LAYER);

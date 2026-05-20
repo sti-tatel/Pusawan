@@ -103,6 +103,7 @@ public class Shop extends JFrame {
         closeButton.setBorderPainted(false);
         closeButton.setContentAreaFilled(false);
         closeButton.setFocusPainted(false);
+        Buttons.addClickSound(closeButton);
         closeButton.setForeground(Color.WHITE);
         closeButton.setFont(new Font("Arial", Font.BOLD, 16));
         closeButton.addActionListener(e -> dispose());
@@ -124,6 +125,7 @@ public class Shop extends JFrame {
         // "Sell All" only visible on sell tabs
         JButton sellAllButton = new JButton("Sell All");
         sellAllButton.setBounds(560, 8, 120, 30);
+        Buttons.addClickSound(sellAllButton);
         sellAllButton.addActionListener(e -> { sellAll(); refreshItems(); });
         sellAllButton.setVisible(!mode.equals("buy"));
         coinsPanel.add(sellAllButton);
@@ -236,6 +238,7 @@ public class Shop extends JFrame {
     // creates a styled tab button at the given x position with given width
     private JButton makeTab(String label, int x, int width) {
         JButton tab = new JButton(label);
+        Buttons.addClickSound(tab);
         tab.setBounds(x, 0, width, 40);
         tab.setFont(new Font("Arial", Font.BOLD, 14));
         tab.setFocusPainted(false);
@@ -290,6 +293,7 @@ public class Shop extends JFrame {
                         boolean isRod = name.endsWith("Rod");
                         boolean owned = isRod && Inventory.items.getOrDefault(name, 0) > 0;
                         JButton buyBtn = new JButton(owned ? "Owned" : "Buy");
+                        Buttons.addClickSound(buyBtn);
                         buyBtn.setEnabled(!owned);
                         buyBtn.addActionListener(e -> {
                             if (PlayerData.getMoney() >= price) {
@@ -353,6 +357,7 @@ public class Shop extends JFrame {
                 slot.add(countLabel, BorderLayout.NORTH);
 
                 JButton sellOne = new JButton("Sell");
+                Buttons.addClickSound(sellOne);
                 sellOne.addActionListener(e -> {
                     Inventory.removeItem(name);
                     PlayerData.addMoney(price);
