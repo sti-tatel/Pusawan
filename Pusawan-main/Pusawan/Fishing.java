@@ -67,10 +67,10 @@ public class Fishing extends JPanel {
         background.add(inventoryButton);
 
         //INDEX BUTTON
-        JButton indexButton = new JButton("Index");
-        indexButton.setBounds(20, 620, 80, 30);
-        indexButton.addActionListener(e -> FishIndex.toggle()); 
-        background.add(indexButton);
+        // JButton indexButton = new JButton("Index");
+        // indexButton.setBounds(20, 620, 80, 30);
+        // indexButton.addActionListener(e -> FishIndex.toggle()); 
+        // background.add(indexButton);
 
         cancelButton = new JButton("Cancel");
         cancelButton.setBounds(20, 460, 100, 40);
