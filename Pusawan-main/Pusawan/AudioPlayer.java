@@ -6,10 +6,11 @@
   
       private static Clip clip;
   
-      public static void playMusic() {
-          try {
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(
-                AudioPlayer.class.getResource("/audio/morningMood.wav"));
+        public static void playMusic(String filename) {
+            stopMusic();
+            try {
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(
+                    AudioPlayer.class.getResource("/audio/" + filename));
   
               clip = AudioSystem.getClip();
               clip.open(audioStream);

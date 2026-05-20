@@ -67,6 +67,13 @@ public class Game extends JFrame {
         }
 
         instance.cardLayout.show(instance.container, screen);
+        if (screen.equals(START)) {
+            AudioPlayer.playMusic("tropicalBreeze.wav");
+        } else if (screen.equals(GAME)) {
+            AudioPlayer.playMusic("morningMood.wav");
+        } else {
+            AudioPlayer.stopMusic();
+        }
     }
     public static JLayeredPane layeredPane() {
         return instance.getLayeredPane();
