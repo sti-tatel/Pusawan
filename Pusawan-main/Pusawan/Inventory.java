@@ -158,6 +158,7 @@ public class Inventory extends JPanel {
         bg = new JPanel(new WrapLayout(FlowLayout.LEFT, 12, 12));
         bg.setOpaque(false);
         bg.setBorder(BorderFactory.createEmptyBorder(9, 9, 10, 10));
+        bg.setPreferredSize(new Dimension(820, 900));
 
         JPanel bgWrapper = new JPanel(new BorderLayout());
         bgWrapper.setOpaque(false);
@@ -246,7 +247,7 @@ layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
         int i = 0;
 
         for (java.util.Map.Entry<String, Integer> entry : items.entrySet()) {
-            if (i >= 20) {
+            if (i >= 40) {
                 break;
             }
 
@@ -434,7 +435,7 @@ layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
             i++;
         }
 
-        while (i < 20) {
+        while (i < 40) {
             JPanel slot = new JPanel() {
                 private Image slotImg = new ImageIcon(getClass().getResource("/images/slotbg.png")).getImage();
 
