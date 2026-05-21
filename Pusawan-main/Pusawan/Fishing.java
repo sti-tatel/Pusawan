@@ -28,6 +28,12 @@ public class Fishing extends JPanel {
     private float playerSize    = 0.15f; // player bracket width fraction
     private float fishSize      = 0.015f; // thin fish indicator width
 
+    // New Mechanics State
+    private int     driftDir          = 1;     // 1 for right, -1 for left
+    private boolean isMouseDown       = false; // tracks if player is holding click/space to pull
+    private long    fishMoveStartTime = 0;     // tracks the 0.3 - 0.5s freeze delay
+    private long    nextFishTime      = 0;     // 1-second cooldown tracker
+
     // ===== BAR LAYOUT =====
     // main horizontal bar position and size — adjust to sit across your pier
     private static final int BAR_X = 375;  // left edge of bar
@@ -57,15 +63,35 @@ public class Fishing extends JPanel {
             if (!isShowing()) return;
             if (fishingInProgress) {
 
-                // fish indicator moves randomly with occasional direction changes
-                // Math.random() < 0.03: 3% chance per frame to add random impulse — increase for more erratic
-                if (Math.random() < 0.03) fishVel += (float)(Math.random() * 0.02 - 0.01);
-                // clamp velocity so it doesn't get too fast — adjust 0.015f for max speed
-                fishVel = Math.max(-0.015f, Math.min(0.015f, fishVel));
-                fishX  += fishVel;
-                // bounce off edges
-                if (fishX <= 0f) { fishX = 0f; fishVel = Math.abs(fishVel); }
-                if (fishX >= 1f) { fishX = 1f; fishVel = -Math.abs(fishVel); }
+                //speed
+                //player speed
+                float driftSpeed = 0.020f; // SPEED WHEN NOT CLICKING
+                float pullSpeed  = 0.020f; // SPEED WHEN HOLDING CLICK
+                if (isMouseDown) {
+                    playerX += -driftDir * pullSpeed; 
+                } else {
+                    playerX += driftDir * driftSpeed; 
+                }
+                // clamp player to bar bounds
+                playerX = Math.max(playerSize / 2, Math.min(1f - playerSize / 2, playerX));
+
+                // fish indicator stays still for 0.3-0.5s before moving
+                if (System.currentTimeMillis() > fishMoveStartTime) {
+                    // Increased to 0.05 (5% chance) so it changes direction more often
+                    //fish speed
+                    if (Math.random() < 0.05) { 
+                        //bar jerk
+                        //fish jerk speed
+                        // Increased from 0.02/0.01 to 0.04/0.02 to make the "jerks" much stronger
+                        fishVel += (float)(Math.random() * 0.04 - 0.02); 
+                    }
+                    // Increased max speed from 0.015f to 0.03f so it can travel faster
+                    fishVel = Math.max(-0.03f, Math.min(0.03f, fishVel)); 
+                    fishX  += fishVel;
+                    // bounce off edges
+                    if (fishX <= 0f) { fishX = 0f; fishVel = Math.abs(fishVel); }
+                    if (fishX >= 1f) { fishX = 1f; fishVel = -Math.abs(fishVel); }
+                }
 
                 // check overlap: player bracket contains fish indicator
                 float pLeft  = playerX - playerSize / 2;
@@ -75,9 +101,14 @@ public class Fishing extends JPanel {
                 // progress bar fills when overlapping, drains when not
                 // adjust +0.004f (fill rate) and -0.003f (drain rate)
                 if (overlap) {
-                    catchProgress = Math.min(1f, catchProgress + 0.004f);
+                    //player health
+                    //health gain
+                    catchProgress = Math.min(1f, catchProgress + 0.010f);
                     if (catchProgress >= 1f) background.completeCatch();
                 } else {
+                    //health drain
+                    //player damage
+                    //damage
                     catchProgress = Math.max(0f, catchProgress - 0.003f);
                     if (catchProgress <= 0f) background.failCatch();
                 }
@@ -116,6 +147,8 @@ public class Fishing extends JPanel {
     // cancels fishing and resets all minigame state
     private void cancelFishing() {
         fishingInProgress = false;
+        isMouseDown       = false;
+        nextFishTime      = System.currentTimeMillis() + 1000; // 1-second cooldown
         catchProgress     = 0.25f;
         playerX           = 0.5f;
         fishX             = 0.5f;
@@ -131,7 +164,7 @@ public class Fishing extends JPanel {
 
         private boolean   pierHovered = false;
         // pierHitbox: clickable zone on the pier to start fishing
-        // adjust Rectangle(x, y, width, height) to match your pier image
+        // adjust Rectangle(x, y, width, height) to match pier image
         private Rectangle pierHitbox  = new Rectangle(598, 432, 153, 280);
 
         private ImageIcon pondBg;
@@ -148,28 +181,36 @@ public class Fishing extends JPanel {
             pondBg.setImageObserver(this);
             fishingGif.setImageObserver(this);
 
-            // mouse: move player bracket to follow cursor X during minigame
+            // spacebar: Press/Release logic for the minigame
+            getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), "spaceDown");
+            getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released SPACE"), "spaceUp");
+            
+            getActionMap().put("spaceDown", new javax.swing.AbstractAction() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    if (fishingInProgress) isMouseDown = true;
+                }
+            });
+
+            getActionMap().put("spaceUp", new javax.swing.AbstractAction() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    if (fishingInProgress) isMouseDown = false;
+                }
+            });
+
+            // mouse: Hover effects
             addMouseMotionListener(new MouseMotionAdapter() {
                 public void mouseMoved(MouseEvent e) {
-                    if (fishingInProgress) {
-                        // map cursor X to 0-1 range within the bar
-                        playerX = Math.max(playerSize / 2, Math.min(1f - playerSize / 2,
-                            (float)(e.getX() - BAR_X) / BAR_W));
-                    } else {
+                    if (!fishingInProgress) {
                         boolean over = pierHitbox.contains(e.getPoint()) && Inventory.instance == null;
                         if (over != pierHovered) { pierHovered = over; repaint(); }
                     }
                 }
-                public void mouseDragged(MouseEvent e) {
-                    if (fishingInProgress) {
-                        playerX = Math.max(playerSize / 2, Math.min(1f - playerSize / 2,
-                            (float)(e.getX() - BAR_X) / BAR_W));
-                    }
-                }
             });
 
+            // mouse: Press/Release logic for controlling the new drift minigame
             addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
+                public void mousePressed(MouseEvent e) {
+                    isMouseDown = true;
                     if (fishingInProgress) return;
 
                     // bait selector click
@@ -180,6 +221,7 @@ public class Fishing extends JPanel {
 
                     // pier click — start fishing
                     if (pierHitbox.contains(e.getPoint())) {
+                        if (System.currentTimeMillis() < nextFishTime) return; // Wait 1 second!
                         startFishing();
                         return;
                     }
@@ -189,6 +231,10 @@ public class Fishing extends JPanel {
                     if (Inventory.instance != null) { Inventory.instance.closeInventory(); }
                     if (Shop.instance != null) { Shop.instance.dispose(); Shop.instance = null; }
                 }
+
+                public void mouseReleased(MouseEvent e) {
+                    isMouseDown = false;
+                }
             });
         }
 
@@ -196,6 +242,7 @@ public class Fishing extends JPanel {
         void completeCatch() {
             fishingInProgress = false;
             showFishResult    = true;
+            nextFishTime      = System.currentTimeMillis() + 1000; // 1-second cooldown
             catchProgress     = 0.25f;
             menuButton.setVisible(true);
             inventoryButton.setVisible(true);
@@ -207,8 +254,9 @@ public class Fishing extends JPanel {
             // consume bait
             if (!selectedBait.equals("No Bait")) {
                 Inventory.removeItem(selectedBait);
-                if (Inventory.items.getOrDefault(selectedBait, 0) <= 0)
+                if (Inventory.items.getOrDefault(selectedBait, 0) <= 0) {
                     selectedBait = "No Bait";
+                }
             }
 
             // hide result after 2 seconds
@@ -223,6 +271,7 @@ public class Fishing extends JPanel {
         void failCatch() {
             fishingInProgress = false;
             showFishResult    = true;
+            nextFishTime      = System.currentTimeMillis() + 1000; // 1-second cooldown
             lastCaughtFish    = null;
             catchProgress     = 0.25f;
             menuButton.setVisible(true);
@@ -246,8 +295,9 @@ public class Fishing extends JPanel {
                 drawMinigame(g);
             } else {
                 g.drawImage(pondBg.getImage(), 0, 0, getWidth(), getHeight(), this);
-                if (pierHovered && pondHover != null)
+                if (pierHovered && pondHover != null) {
                     g.drawImage(pondHover.getImage(), 0, 0, getWidth(), getHeight(), this);
+                }
             }
 
             drawFishResult(g);
@@ -267,33 +317,33 @@ public class Fishing extends JPanel {
             g2.drawRoundRect(BAR_X, BAR_Y, BAR_W, BAR_H, 12, 12);
 
             // ---- PLAYER BRACKET ----
-            // white bracket the player moves with the mouse
+            // filled grayish-white to remain discernable from the fish bar
             int pPx = (int)(playerX * BAR_W) + BAR_X;
             int pHalfW = (int)(playerSize * BAR_W / 2);
             int pLeft  = pPx - pHalfW;
-            int pRight = pPx + pHalfW;
 
-            g2.setColor(Color.WHITE);
-            g2.setStroke(new java.awt.BasicStroke(3));
-            // left arrow wing
-            g2.drawLine(pLeft, BAR_Y + BAR_H / 2, pLeft + 12, BAR_Y + 6);
-            g2.drawLine(pLeft, BAR_Y + BAR_H / 2, pLeft + 12, BAR_Y + BAR_H - 6);
-            // right arrow wing
-            g2.drawLine(pRight, BAR_Y + BAR_H / 2, pRight - 12, BAR_Y + 6);
-            g2.drawLine(pRight, BAR_Y + BAR_H / 2, pRight - 12, BAR_Y + BAR_H - 6);
-            // top and bottom lines connecting bracket
-            g2.drawLine(pLeft + 12, BAR_Y + 6, pRight - 12, BAR_Y + 6);
-            g2.drawLine(pLeft + 12, BAR_Y + BAR_H - 6, pRight - 12, BAR_Y + BAR_H - 6);
+            g2.setColor(new Color(210, 210, 210)); 
+            g2.fillRoundRect(pLeft, BAR_Y + 2, pHalfW * 2, BAR_H - 4, 8, 8);
+            g2.setColor(new Color(150, 150, 150)); 
+            g2.drawRoundRect(pLeft, BAR_Y + 2, pHalfW * 2, BAR_H - 4, 8, 8);
 
             // ---- FISH INDICATOR ----
-            // thin vertical white line that moves randomly
+            // thin vertical line that moves randomly
             int fPx = (int)(fishX * BAR_W) + BAR_X;
-            g2.setColor(new Color(255, 255, 255, 220));
-            g2.setStroke(new java.awt.BasicStroke(3));
-            g2.drawLine(fPx, BAR_Y + 4, fPx, BAR_Y + BAR_H - 4);
-            // small fish icon below indicator
+            
+            // thin black outline
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new java.awt.BasicStroke(5));
+            g2.drawLine(fPx, BAR_Y + 2, fPx, BAR_Y + BAR_H - 2);
+
+            // white inner line
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new java.awt.BasicStroke(2));
+            g2.drawLine(fPx, BAR_Y + 2, fPx, BAR_Y + BAR_H - 2);
+
+            // small fish icon on top of indicator
             g2.setFont(new Font("Arial", Font.BOLD, 14));
-            g2.drawString("🐟", fPx - 8, BAR_Y + BAR_H + 16);
+            g2.drawString("Fish", fPx - 8, BAR_Y - 6);
 
             g2.setStroke(new java.awt.BasicStroke(1));
 
@@ -306,12 +356,12 @@ public class Fishing extends JPanel {
             g2.setColor(new Color(255, 255, 255, 60));
             g2.drawRoundRect(BAR_X, PROG_Y, BAR_W, PROG_H, 8, 8);
 
-            // instruction text
+            // instruction text updated for new mechanic
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.BOLD, 16));
-            String hint = "Move your mouse to keep the line on the fish!";
+            String hint = "Hold Click or Space to pull!";
             int tw = g2.getFontMetrics().stringWidth(hint);
-            g2.drawString(hint, BAR_X + BAR_W / 2 - tw / 2, BAR_Y - 12);
+            g2.drawString(hint, BAR_X + BAR_W / 2 - tw / 2, BAR_Y - 18);
         }
 
         // draws the catch result banner
@@ -347,8 +397,9 @@ public class Fishing extends JPanel {
                 java.net.URL baitUrl = getClass().getResource("/images/"
                     + Character.toLowerCase(selectedBait.charAt(0))
                     + selectedBait.substring(1).replace(" ", "") + ".png");
-                if (baitUrl != null)
+                if (baitUrl != null) {
                     g.drawImage(new ImageIcon(baitUrl).getImage(), 10, 634, 48, 48, this);
+                }
 
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.BOLD, 11));
@@ -373,11 +424,21 @@ public class Fishing extends JPanel {
             playerX           = 0.5f;
             fishX             = 0.5f;
             fishVel           = 0f;
+            isMouseDown       = false;
+
+            // 50/50 RNG determines which way the bar drifts for this session
+            driftDir = Math.random() < 0.5 ? 1 : -1;
+            
+            // Fish stays frozen for 0.3 to 0.5 seconds (300ms to 500ms)
+            fishMoveStartTime = System.currentTimeMillis() + (long)(Math.random() * 200 + 300);
 
             // difficulty: junk = easier (slower fish, bigger bracket)
             // fish = harder (faster fish, smaller bracket)
             boolean junk = isJunk(lastCaughtFish);
-            playerSize = junk ? 0.20f : 0.13f; // bracket width — bigger = easier
+            //bar size
+            //player bar size
+            //capture size
+            playerSize = junk ? 0.20f : 0.20f; // bracket width — bigger = easier
             // fishVel random impulse range controlled in game loop via 0.02 multiplier
 
             // rod bonuses — widens player bracket
