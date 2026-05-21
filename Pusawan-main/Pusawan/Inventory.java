@@ -8,29 +8,58 @@ public class Inventory extends JPanel {
     private JPanel bg;
 
     static Inventory instance;
-    private String  mode       = "inventory";
+    private String mode = "inventory";
     private boolean isItemsTab = false;
-    private boolean isBaitTab  = false;
+    private boolean isBaitTab = false;
+    private JLabel descName;
+    private JTextArea descText;
+    private JLabel itemDisplayLabel;
 
-    private static final java.util.Set<String> FISH_NAMES = new java.util.HashSet<>(
-        java.util.Arrays.asList("Carp", "Catfish", "Bass", "Perch")
-    );
+    private static final java.util.Set<String> FISH_NAMES = new java.util.HashSet<>(java.util.Arrays.asList("Carp", "Catfish", "Bass", "Perch"));
+
+    private static final java.util.Map<String, String> descriptions = new java.util.LinkedHashMap<>();
+
+    static {
+        descriptions.put("Bass", "A strong freshwater fish.\nSells well raw.");
+        descriptions.put("Carp", "A common river fish.\nNot the tastiest.");
+        descriptions.put("Catfish", "Bottom-dweller.\nCooks up nicely.");
+        descriptions.put("Perch", "Small but plentiful.\nGood for a quick meal.");
+        descriptions.put("Cut Bass", "Cleaned and prepped.\nReady for the grill.");
+        descriptions.put("Cut Carp", "Cleaned and prepped.\nReady for the grill.");
+        descriptions.put("Cut Catfish", "Cleaned and prepped.\nReady for the grill.");
+        descriptions.put("Cut Perch", "Cleaned and prepped.\nReady for the grill.");
+        descriptions.put("Cooked Bass", "Grilled to perfection.\nFetches a good price.");
+        descriptions.put("Cooked Carp", "Tender and flaky.\nSmells amazing.");
+        descriptions.put("Cooked Catfish", "Crispy on the outside.\nJuicy inside.");
+        descriptions.put("Cooked Perch", "Simple but satisfying.\nA fisherman's staple.");
+        descriptions.put("Sandal", "Someone lost this.\nNot worth much.");
+        descriptions.put("Shoe", "Waterlogged and worn.\nStill sellable.");
+        descriptions.put("Plastic Wrapper", "Trash from the river.\nA few coins maybe.");
+        descriptions.put("Worm Bait", "Wriggly and effective.\nAttracts common fish.");
+        descriptions.put("Insect Bait", "Buzzing with potential.\nGood for mid-tier fish.");
+        descriptions.put("Fish Bait", "Bait made from fish.\nAttracts bigger catches.");
+        descriptions.put("Magic Bait", "Mysterious and powerful.\nWhat will you catch?");
+    }
 
     // ================= SHARED INVENTORY =================
     public static java.util.Map<String, Integer> items = new java.util.LinkedHashMap<>();
 
     // fills inventory with 100 of every item for testing
     public static void fillDebug() {
-        String[] allItems = {"Perch","Carp","Catfish","Bass","Cut Perch","Cut Carp","Cut Catfish","Cut Bass",
-            "Cooked Perch","Cooked Carp","Cooked Catfish","Cooked Bass","Sandal","Shoe","Plastic Wrapper",
-            "Worm Bait","Insect Bait","Fish Bait","Magic Bait"};
-        for (String item : allItems) items.put(item, 1);
+        String[] allItems = {"Perch", "Carp", "Catfish", "Bass", "Cut Perch", "Cut Carp", "Cut Catfish", "Cut Bass",
+            "Cooked Perch", "Cooked Carp", "Cooked Catfish", "Cooked Bass", "Sandal", "Shoe", "Plastic Wrapper",
+            "Worm Bait", "Insect Bait", "Fish Bait", "Magic Bait"};
+        for (String item : allItems) {
+            items.put(item, 1000000);
+        }
     }
 
     // ================= CONSTRUCTOR =================
     public Inventory(String mode) {
         this.mode = mode;
-        if (mode.equals("bait")) isBaitTab = true;
+        if (mode.equals("bait")) {
+            isBaitTab = true;
+        }
 
         setLayout(null);
         setOpaque(false);
@@ -45,6 +74,7 @@ public class Inventory extends JPanel {
         // ================= BACKGROUND IMAGE =================
         JPanel bgPanel = new JPanel() {
             private Image bgImg = new ImageIcon(getClass().getResource("/images/inventorybg.png")).getImage();
+
             @Override
             protected void paintComponent(Graphics g) {
                 g.drawImage(bgImg, 0, 0, getWidth(), getHeight(), this);
@@ -70,12 +100,12 @@ public class Inventory extends JPanel {
 
         // ================= TAB BUTTONS =================
         // tabs stick out to the left of the background image
-        int tabX   = 0;    // left edge of panel — sits left of the bg image
-        int tabY   = 150;
+        int tabX = 0;    // left edge of panel — sits left of the bg image
+        int tabY = 150;
         int tabGap = 5;
 
-        JButton fishTab  = makeImageTab("/images/fishTab.png",  tabX, tabY);
-        JButton baitTab  = makeImageTab("/images/baitTab.png",  tabX, tabY + 64 + tabGap);
+        JButton fishTab = makeImageTab("/images/fishTab.png", tabX, tabY);
+        JButton baitTab = makeImageTab("/images/baitTab.png", tabX, tabY + 64 + tabGap);
         JButton itemsTab = makeImageTab("/images/itemsTab.png", tabX, tabY + (64 + tabGap) * 2);
         Buttons.addClickSound(fishTab);
         Buttons.addClickSound(baitTab);
@@ -96,26 +126,32 @@ public class Inventory extends JPanel {
         }
 
         fishTab.addActionListener(e -> {
-            if (!isItemsTab && !isBaitTab) return;
+            if (!isItemsTab && !isBaitTab) {
+                return;
+            }
             isItemsTab = false;
-            isBaitTab  = false;
+            isBaitTab = false;
             refreshItems();
         });
         baitTab.addActionListener(e -> {
-            if (isBaitTab) return;
-            isBaitTab  = true;
+            if (isBaitTab) {
+                return;
+            }
+            isBaitTab = true;
             isItemsTab = false;
             refreshItems();
         });
         itemsTab.addActionListener(e -> {
-            if (isItemsTab) return;
+            if (isItemsTab) {
+                return;
+            }
             isItemsTab = true;
-            isBaitTab  = false;
+            isBaitTab = false;
             refreshItems();
         });
 
-        layeredPane.add(fishTab,  JLayeredPane.PALETTE_LAYER);
-        layeredPane.add(baitTab,  JLayeredPane.PALETTE_LAYER);
+        layeredPane.add(fishTab, JLayeredPane.PALETTE_LAYER);
+        layeredPane.add(baitTab, JLayeredPane.PALETTE_LAYER);
         layeredPane.add(itemsTab, JLayeredPane.PALETTE_LAYER);
 
         // ================= ITEM GRID =================
@@ -124,8 +160,8 @@ public class Inventory extends JPanel {
         bg.setBorder(BorderFactory.createEmptyBorder(9, 9, 10, 10));
 
         JPanel bgWrapper = new JPanel(new BorderLayout());
-                bgWrapper.setOpaque(false);
-                bgWrapper.add(bg, BorderLayout.NORTH);
+        bgWrapper.setOpaque(false);
+        bgWrapper.add(bg, BorderLayout.NORTH);
 
         JScrollPane scrollPane = new JScrollPane(bgWrapper);
         scrollPane.setBounds(93, 100, 840, 440);
@@ -136,13 +172,53 @@ public class Inventory extends JPanel {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         layeredPane.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
 
+        // ================= DESCRIPTION PANEL =================
+        JPanel descPanel = new JPanel(null);
+        descPanel.setBounds(860, 265, 172, 280);
+        //descPanel.setBackground(new Color(45, 28, 12));
+        descPanel.setOpaque(true);
+
+        descName = new JLabel("", SwingConstants.CENTER);
+        descName.setBounds(5, 10, 162, 30);
+        descName.setForeground(new Color(255, 220, 130));
+        descName.setFont(new Font("Arial", Font.BOLD, 13));
+        descPanel.add(descName);
+
+        descText = new JTextArea("Select an item");
+        descText.setBounds(5, 50, 162, 380);
+        descText.setForeground(new Color(0, 0, 0));
+        descText.setFont(new Font("Arial", Font.PLAIN, 11));
+        descText.setOpaque(false);
+        descText.setEditable(false);
+        descText.setLineWrap(true);
+        descText.setWrapStyleWord(true);
+        descText.setFocusable(false);
+        descPanel.add(descText);
+
+        layeredPane.add(descPanel, JLayeredPane.DEFAULT_LAYER);
+
+        JPanel itemDisplay = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+            }
+        };
+        itemDisplay.setBounds(860, 95, 152, 152);
+        itemDisplay.setOpaque(false);
+        ImageIcon defaultIcon = new ImageIcon(getClass().getResource("/images/selected.png"));
+        itemDisplayLabel = new JLabel(defaultIcon, SwingConstants.CENTER);
+        itemDisplay.add(itemDisplayLabel, BorderLayout.CENTER);
+        layeredPane.add(itemDisplay, JLayeredPane.DEFAULT_LAYER);
+
         refreshItems();
     }
 
     // ================= CLOSE =================
     void closeInventory() {
         JLayeredPane lp = Game.layeredPane();
-        if (lp != null) lp.remove(this);
+        if (lp != null) {
+            lp.remove(this);
+        }
         instance = null;
         Game.hideOverlayIfNoModals();
         Buttons.updateInventoryIcon();
@@ -168,29 +244,44 @@ public class Inventory extends JPanel {
         int i = 0;
 
         for (java.util.Map.Entry<String, Integer> entry : items.entrySet()) {
-            if (i >= 20) break;
+            if (i >= 20) {
+                break;
+            }
 
             final String itemName = entry.getKey();
             int count = entry.getValue();
 
             boolean isFish = FISH_NAMES.contains(itemName)
-                || itemName.startsWith("Cut ")
-                || itemName.startsWith("Cooked ");
+                    || itemName.startsWith("Cut ")
+                    || itemName.startsWith("Cooked ");
 
             if (mode.equals("bait")) {
-                if (!itemName.endsWith("Bait")) continue;
+                if (!itemName.endsWith("Bait")) {
+                    continue;
+                }
             } else if (mode.equals("cut")) {
-                if (!FISH_NAMES.contains(itemName)) continue;
+                if (!FISH_NAMES.contains(itemName)) {
+                    continue;
+                }
             } else if (mode.equals("cook")) {
-                if (!itemName.startsWith("Cut ")) continue;
+                if (!itemName.startsWith("Cut ")) {
+                    continue;
+                }
             } else {
-                if (isBaitTab  && !itemName.endsWith("Bait")) continue;
-                if (isItemsTab && (isFish || itemName.endsWith("Bait"))) continue;
-                if (!isItemsTab && !isBaitTab && (!isFish || itemName.endsWith("Bait"))) continue;
+                if (isBaitTab && !itemName.endsWith("Bait")) {
+                    continue;
+                }
+                if (isItemsTab && (isFish || itemName.endsWith("Bait"))) {
+                    continue;
+                }
+                if (!isItemsTab && !isBaitTab && (!isFish || itemName.endsWith("Bait"))) {
+                    continue;
+                }
             }
 
             JPanel slot = new JPanel(new BorderLayout()) {
                 private Image slotImg = new ImageIcon(getClass().getResource("/images/slotbg.png")).getImage();
+
                 @Override
                 protected void paintComponent(Graphics g) {
                     g.drawImage(slotImg, 0, 0, getWidth(), getHeight(), this);
@@ -200,15 +291,45 @@ public class Inventory extends JPanel {
             slot.setPreferredSize(new Dimension(80, 80));
             slot.setBorder(null);
 
+            String imagePath;
+            if (itemName.startsWith("Cut ")) {
+                imagePath = "/images/cut_" + itemName.replace("Cut ", "").toLowerCase() + ".png";
+            } else if (itemName.startsWith("Cooked ")) {
+                imagePath = "/images/cooked_" + itemName.replace("Cooked ", "").toLowerCase() + ".png";
+            } else if (itemName.endsWith("Bait")) {
+                switch (itemName) {
+                    case "Worm Bait":   imagePath = "/images/wormBait.png";   break;
+                    case "Insect Bait": imagePath = "/images/insectBait.png"; break;
+                    case "Fish Bait":   imagePath = "/images/fishBait.png";   break;
+                    case "Magic Bait":  imagePath = "/images/magicBait.png";  break;
+                    default: imagePath = "/images/" + itemName.replace(" ", "") + ".png"; break;
+                }
+            } else {
+                imagePath = "/images/" + itemName.toLowerCase().replace(" ", "") + ".png";
+            }
+            final String finalImagePath = imagePath;
+
             slot.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent e) {
                     slot.setBackground(Color.WHITE);
                 }
+
                 public void mouseExited(java.awt.event.MouseEvent e) {
                     slot.setBackground(new Color(200, 180, 120));
                 }
+
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     slot.setBackground(Color.YELLOW);
+                    descName.setText(itemName);
+                    java.net.URL dispUrl = getClass().getResource(finalImagePath);
+                    if (dispUrl != null) {
+                        Image dispImg = new ImageIcon(dispUrl).getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+                        itemDisplayLabel.setIcon(new ImageIcon(dispImg));
+                    } else {
+                        itemDisplayLabel.setIcon(null);
+                    }
+                    String desc = descriptions.getOrDefault(itemName, "No description.");
+                    descText.setText(desc);
 
                     if (mode.equals("inventory")) {
                         JPopupMenu popup = new JPopupMenu();
@@ -237,7 +358,9 @@ public class Inventory extends JPanel {
 
                         JButton deleteBtn = new JButton("Delete");
                         deleteBtn.addActionListener(ev -> {
-                            if (itemName.equals(PlayerData.equippedRod)) PlayerData.equippedRod = null;
+                            if (itemName.equals(PlayerData.equippedRod)) {
+                                PlayerData.equippedRod = null;
+                            }
                             Inventory.removeItem(itemName);
                             popup.setVisible(false);
                             refreshItems();
@@ -271,28 +394,13 @@ public class Inventory extends JPanel {
                 }
             });
 
-            String imagePath;
-            if (itemName.startsWith("Cut ")) {
-                imagePath = "/images/cut_" + itemName.replace("Cut ", "").toLowerCase() + ".png";
-            } else if (itemName.startsWith("Cooked ")) {
-                imagePath = "/images/cooked_" + itemName.replace("Cooked ", "").toLowerCase() + ".png";
-            } else if (itemName.endsWith("Bait")) {
-                switch (itemName) {
-                    case "Worm Bait":    imagePath = "/images/wormBait.png";   break;
-                    case "Insect Bait":  imagePath = "/images/insectBait.png"; break;
-                    case "Fish Bait":    imagePath = "/images/fishBait.png";   break;
-                    case "Magic Bait":   imagePath = "/images/magicBait.png";  break;
-                    default: imagePath = "/images/" + itemName.replace(" ", "") + ".png"; break;
-                }
-            } else {
-                imagePath = "/images/" + itemName.toLowerCase().replace(" ", "") + ".png";
-            }
-
             java.net.URL imgUrl = getClass().getResource(imagePath);
-            if (imgUrl == null)
+            if (imgUrl == null) {
                 imgUrl = getClass().getResource("/images/" + itemName.replace(" ", "") + ".png");
-            if (imgUrl == null && itemName.endsWith("Bait"))
+            }
+            if (imgUrl == null && itemName.endsWith("Bait")) {
                 imgUrl = getClass().getResource("/images/wormBait.png");
+            }
 
             if (imgUrl != null) {
                 ImageIcon icon = new ImageIcon(imgUrl);
@@ -320,7 +428,6 @@ public class Inventory extends JPanel {
             //     countLabel.setHorizontalAlignment(SwingConstants.RIGHT);
             //     slot.add(countLabel, BorderLayout.NORTH);
             // }
-
             bg.add(slot);
             i++;
         }
@@ -328,6 +435,7 @@ public class Inventory extends JPanel {
         while (i < 20) {
             JPanel slot = new JPanel() {
                 private Image slotImg = new ImageIcon(getClass().getResource("/images/slotbg.png")).getImage();
+
                 @Override
                 protected void paintComponent(Graphics g) {
                     g.drawImage(slotImg, 0, 0, getWidth(), getHeight(), this);
@@ -345,41 +453,58 @@ public class Inventory extends JPanel {
     }
 
     // ================= STATIC HELPERS =================
-
     public static void addItem(String itemName) {
         items.put(itemName, items.getOrDefault(itemName, 0) + 1);
-        if (instance != null) instance.refreshItems();
+        if (instance != null) {
+            instance.refreshItems();
+        }
     }
 
     public static void removeItem(String itemName) {
-        if (!items.containsKey(itemName)) return;
+        if (!items.containsKey(itemName)) {
+            return;
+        }
         int count = items.get(itemName);
-        if (count <= 1) items.remove(itemName);
-        else items.put(itemName, count - 1);
-        if (instance != null) instance.refreshItems();
+        if (count <= 1) {
+            items.remove(itemName); 
+        }else {
+            items.put(itemName, count - 1);
+        }
+        if (instance != null) {
+            instance.refreshItems();
+        }
     }
 
     public static String getFirstFish() {
-        for (String item : items.keySet())
-            if (items.getOrDefault(item, 0) > 0 && FISH_NAMES.contains(item)) return item;
+        for (String item : items.keySet()) {
+            if (items.getOrDefault(item, 0) > 0 && FISH_NAMES.contains(item)) {
+                return item;
+            }
+        }
         return null;
     }
 
     public static String getFirstCutFish() {
-        for (String item : items.keySet())
-            if (item.startsWith("Cut ") && items.getOrDefault(item, 0) > 0) return item;
+        for (String item : items.keySet()) {
+            if (item.startsWith("Cut ") && items.getOrDefault(item, 0) > 0) {
+                return item;
+            }
+        }
         return null;
     }
 
     // ================= TOGGLE =================
     public static void toggleInventory() {
         Buttons.closeAllDropdowns();
-        if (instance != null) { instance.closeInventory(); return; }
+        if (instance != null) {
+            instance.closeInventory();
+            return;
+        }
         instance = new Inventory("inventory");
         JLayeredPane lp = Game.layeredPane();
         // center it within the game window, offset left by 60 so tabs overhang
         int x = (1350 - 1058) / 2 - 60;
-        int y = (750  - 580)  / 2;
+        int y = (750 - 580) / 2;
         instance.setBounds(x, y, 1058, 580);
         lp.add(instance, JLayeredPane.POPUP_LAYER);
         lp.revalidate();
@@ -390,11 +515,14 @@ public class Inventory extends JPanel {
 
     public static void toggleWithMode(String mode) {
         Buttons.closeAllDropdowns();
-        if (instance != null) { instance.closeInventory(); return; }
+        if (instance != null) {
+            instance.closeInventory();
+            return;
+        }
         instance = new Inventory(mode);
         JLayeredPane lp = Game.layeredPane();
         int x = (1350 - 1058) / 2 - 60;
-        int y = (750  - 580)  / 2;
+        int y = (750 - 580) / 2;
         instance.setBounds(x, y, 1058, 580);
         lp.add(instance, JLayeredPane.POPUP_LAYER);
         lp.revalidate();
