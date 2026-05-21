@@ -197,20 +197,22 @@ public class Inventory extends JPanel {
 
         layeredPane.add(descPanel, JLayeredPane.DEFAULT_LAYER);
 
-        JPanel itemDisplay = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-            }
-        };
-        itemDisplay.setBounds(860, 95, 152, 152);
-        itemDisplay.setOpaque(false);
-        ImageIcon defaultIcon = new ImageIcon(getClass().getResource("/images/selected.png"));
-        itemDisplayLabel = new JLabel(defaultIcon, SwingConstants.CENTER);
-        itemDisplay.add(itemDisplayLabel, BorderLayout.CENTER);
-        layeredPane.add(itemDisplay, JLayeredPane.DEFAULT_LAYER);
+JLayeredPane itemDisplay = new JLayeredPane();
+itemDisplay.setBounds(860, 95, 172, 172);
+
+JLabel bgLabel = new JLabel(new ImageIcon(getClass().getResource("/images/selected.png")));
+bgLabel.setBounds(0, 0, 172, 172);
+itemDisplay.add(bgLabel, JLayeredPane.DEFAULT_LAYER);
+
+itemDisplayLabel = new JLabel();
+itemDisplayLabel.setBounds(10, 10, 152, 152);
+itemDisplayLabel.setHorizontalAlignment(SwingConstants.CENTER);
+itemDisplayLabel.setVerticalAlignment(SwingConstants.CENTER);
+itemDisplay.add(itemDisplayLabel, JLayeredPane.PALETTE_LAYER);
+layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
 
         refreshItems();
+
     }
 
     // ================= CLOSE =================
@@ -323,7 +325,7 @@ public class Inventory extends JPanel {
                     descName.setText(itemName);
                     java.net.URL dispUrl = getClass().getResource(finalImagePath);
                     if (dispUrl != null) {
-                        Image dispImg = new ImageIcon(dispUrl).getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+                        Image dispImg = new ImageIcon(dispUrl).getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
                         itemDisplayLabel.setIcon(new ImageIcon(dispImg));
                     } else {
                         itemDisplayLabel.setIcon(null);
