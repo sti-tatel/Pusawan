@@ -33,7 +33,10 @@ public class Start extends JPanel {
         background1.add(title);
 
         // ===== PLAY BUTTON =====
-        JButton playButton = Buttons.toStart(() -> Game.navigate(Game.KITCHEN));
+        JButton playButton = Buttons.toStart(() -> {
+            AudioPlayer.playMusic("morningMood.wav");
+            Game.navigate(Game.KITCHEN);
+        });
 
         int buttonWidth = 143;
         int buttonHeight = 80;

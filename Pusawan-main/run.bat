@@ -8,4 +8,4 @@ if errorlevel 1 (
     exit /b 1
 )
 java -cp Pusawan\class Pusawan.Main
-pause
+pause   

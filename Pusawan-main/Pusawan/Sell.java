@@ -10,6 +10,8 @@ public class Sell extends JPanel {
     private boolean hovering = false;
     private Rectangle sellZone = new Rectangle(180, 65, 830, 585);
 
+    private JButton inventoryButton;
+
     public Sell() {
         sellBackgroundGif = new ImageIcon(getClass().getResource("/images/sell.gif"));
         hover = new ImageIcon(getClass().getResource("/images/sellSelected.png")).getImage();
@@ -62,6 +64,9 @@ public class Sell extends JPanel {
                 repaint();
             }
         });
+
+        inventoryButton = Buttons.createInventoryButton();
+        bg.add(inventoryButton);
     }
 
     class BackgroundPanel extends JPanel {

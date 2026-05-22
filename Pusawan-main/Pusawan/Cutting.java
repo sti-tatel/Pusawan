@@ -60,6 +60,8 @@ public class Cutting extends JPanel {
         menuButton.setBounds(20, 20, 64, 64);
         panel.add(menuButton);
 
+        panel.add(Buttons.createInventoryButton());
+
         JButton arrowLeft = new JButton(new ImageIcon(getClass().getResource("/images/arrowLeft.png")));
         arrowLeft.setBounds(20, 400, 64, 64);
         arrowLeft.setBorderPainted(false);

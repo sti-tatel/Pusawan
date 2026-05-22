@@ -47,6 +47,8 @@ public class Buy extends JPanel {
         menuButton.setBounds(20, 20, 64, 64);
         storebackground.add(menuButton);
 
+        storebackground.add(Buttons.createInventoryButton());
+
         JButton arrowRight = new JButton(new ImageIcon(getClass().getResource("/images/arrowRight.png")));
         arrowRight.setBounds(1266, 400, 64, 64);
         arrowRight.setBorderPainted(false);

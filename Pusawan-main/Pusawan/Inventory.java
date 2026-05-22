@@ -14,6 +14,9 @@ public class Inventory extends JPanel {
     private JLabel descName;
     private JTextArea descText;
     private JLabel itemDisplayLabel;
+    private JButton equipBtn;
+    private JButton unequipBtn;
+    private JButton deleteBtn;
 
     private static final java.util.Set<String> FISH_NAMES = new java.util.HashSet<>(java.util.Arrays.asList("Carp", "Catfish", "Bass", "Perch"));
 
@@ -48,9 +51,9 @@ public class Inventory extends JPanel {
     public static void fillDebug() {
         String[] allItems = {"Perch", "Carp", "Catfish", "Bass", "Cut Perch", "Cut Carp", "Cut Catfish", "Cut Bass",
             "Cooked Perch", "Cooked Carp", "Cooked Catfish", "Cooked Bass", "Sandal", "Shoe", "Plastic Wrapper",
-            "Worm Bait", "Insect Bait", "Fish Bait", "Magic Bait"};
+            "Worm Bait", "Insect Bait", "Fish Bait", "Magic Bait", "Bamboo Rod"};
         for (String item : allItems) {
-            items.put(item, 1000000);
+            items.put(item, 99);
         }
     }
 
@@ -186,7 +189,7 @@ public class Inventory extends JPanel {
         descPanel.add(descName);
 
         descText = new JTextArea("Select an item");
-        descText.setBounds(5, 50, 162, 380);
+        descText.setBounds(5, 50, 162, 113);
         descText.setForeground(new Color(0, 0, 0));
         descText.setFont(new Font("Arial", Font.PLAIN, 15));
         descText.setOpaque(false);
@@ -196,21 +199,45 @@ public class Inventory extends JPanel {
         descText.setFocusable(false);
         descPanel.add(descText);
 
+        equipBtn = new JButton(new ImageIcon(getClass().getResource("/images/equip.png")));
+        equipBtn.setBounds(8, 162, 156, 32);
+        equipBtn.setBorderPainted(false);
+        equipBtn.setContentAreaFilled(false);
+        equipBtn.setFocusPainted(false);
+        equipBtn.setVisible(false);
+        descPanel.add(equipBtn);
+
+        unequipBtn = new JButton(new ImageIcon(getClass().getResource("/images/unequip.png")));
+        unequipBtn.setBounds(8, 162, 156, 32);
+        unequipBtn.setBorderPainted(false);
+        unequipBtn.setContentAreaFilled(false);
+        unequipBtn.setFocusPainted(false);
+        unequipBtn.setVisible(false);
+        descPanel.add(unequipBtn);
+
+        deleteBtn = new JButton(new ImageIcon(getClass().getResource("/images/delete.png")));
+        deleteBtn.setBounds(8, 200, 156, 32);
+        deleteBtn.setBorderPainted(false);
+        deleteBtn.setContentAreaFilled(false);
+        deleteBtn.setFocusPainted(false);
+        deleteBtn.setVisible(false);
+        descPanel.add(deleteBtn);
+
         layeredPane.add(descPanel, JLayeredPane.DEFAULT_LAYER);
 
-JLayeredPane itemDisplay = new JLayeredPane();
-itemDisplay.setBounds(860, 95, 172, 172);
+        JLayeredPane itemDisplay = new JLayeredPane();
+        itemDisplay.setBounds(860, 95, 172, 172);
 
-JLabel bgLabel = new JLabel(new ImageIcon(getClass().getResource("/images/selected.png")));
-bgLabel.setBounds(0, 0, 172, 172);
-itemDisplay.add(bgLabel, JLayeredPane.DEFAULT_LAYER);
+        JLabel bgLabel = new JLabel(new ImageIcon(getClass().getResource("/images/selected.png")));
+        bgLabel.setBounds(0, 0, 172, 172);
+        itemDisplay.add(bgLabel, JLayeredPane.DEFAULT_LAYER);
 
-itemDisplayLabel = new JLabel();
-itemDisplayLabel.setBounds(10, 10, 152, 152);
-itemDisplayLabel.setHorizontalAlignment(SwingConstants.CENTER);
-itemDisplayLabel.setVerticalAlignment(SwingConstants.CENTER);
-itemDisplay.add(itemDisplayLabel, JLayeredPane.PALETTE_LAYER);
-layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
+        itemDisplayLabel = new JLabel();
+        itemDisplayLabel.setBounds(10, 10, 152, 152);
+        itemDisplayLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        itemDisplayLabel.setVerticalAlignment(SwingConstants.CENTER);
+        itemDisplay.add(itemDisplayLabel, JLayeredPane.PALETTE_LAYER);
+        layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
 
         refreshItems();
 
@@ -335,42 +362,53 @@ layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
                     descText.setText(desc);
 
                     if (mode.equals("inventory")) {
-                        JPopupMenu popup = new JPopupMenu();
                         boolean isRod = itemName.endsWith("Rod");
+                        boolean isEquipped = itemName.equals(PlayerData.equippedRod);
+                        
+                        equipBtn.setVisible(isRod && !isEquipped);
+                        unequipBtn.setVisible(isRod && isEquipped);
+                        deleteBtn.setVisible(true);
+                        
+                        // 1. Clear old listeners so clicks don't stack up from previously clicked items
+                        for (java.awt.event.ActionListener al : equipBtn.getActionListeners()) equipBtn.removeActionListener(al);
+                        for (java.awt.event.ActionListener al : unequipBtn.getActionListeners()) unequipBtn.removeActionListener(al);
+                        for (java.awt.event.ActionListener al : deleteBtn.getActionListeners()) deleteBtn.removeActionListener(al);
 
-                        if (isRod) {
-                            boolean isEquipped = itemName.equals(PlayerData.equippedRod);
-                            if (isEquipped) {
-                                JButton unequipBtn = new JButton("Unequip");
-                                unequipBtn.addActionListener(ev -> {
-                                    PlayerData.equippedRod = null;
-                                    popup.setVisible(false);
-                                    refreshItems();
-                                });
-                                popup.add(unequipBtn);
-                            } else {
-                                JButton equipBtn = new JButton("Equip");
-                                equipBtn.addActionListener(ev -> {
-                                    PlayerData.equippedRod = itemName;
-                                    popup.setVisible(false);
-                                    refreshItems();
-                                });
-                                popup.add(equipBtn);
-                            }
-                        }
-
-                        JButton deleteBtn = new JButton("Delete");
-                        deleteBtn.addActionListener(ev -> {
-                            if (itemName.equals(PlayerData.equippedRod)) {
-                                PlayerData.equippedRod = null;
-                            }
-                            Inventory.removeItem(itemName);
-                            popup.setVisible(false);
+                        // 2. Give the buttons their actual functions
+                        equipBtn.addActionListener(a -> {
+                            AudioPlayer.playSound("click.wav");
+                            PlayerData.equippedRod = itemName;
+                            equipBtn.setVisible(false);
+                            unequipBtn.setVisible(true);
                             refreshItems();
                         });
-                        popup.add(deleteBtn);
-                        popup.show(slot, slot.getWidth(), 0);
-                        return;
+
+                        unequipBtn.addActionListener(a -> {
+                            AudioPlayer.playSound("click.wav");
+                            PlayerData.equippedRod = "None";
+                            unequipBtn.setVisible(false);
+                            equipBtn.setVisible(true);
+                            refreshItems();
+                        });
+
+                        deleteBtn.addActionListener(a -> {
+                            AudioPlayer.playSound("click.wav");
+                            
+                            // 1. Delete the item from data
+                            Inventory.removeItem(itemName);
+                            
+                            // 2. REFRESH THE SCREEN (This was missing!)
+                            refreshItems(); 
+                            
+                            // 3. Hide buttons and clear text if we deleted the last one
+                            if (!items.containsKey(itemName) || items.get(itemName) <= 0) {
+                                descText.setText("Item deleted.");
+                                itemDisplayLabel.setIcon(null);
+                                equipBtn.setVisible(false);
+                                unequipBtn.setVisible(false);
+                                deleteBtn.setVisible(false);
+                            }
+                        });
                     }
 
                     if (mode.equals("cut")) {
@@ -381,10 +419,8 @@ layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
                     }
                     if (mode.equals("cook")) {
                         Inventory.removeItem(itemName);
-                        String cooked = "Cooked " + itemName.replace("Cut ", "");
-                        Cooking.playCookGif(itemName);
-                        Inventory.addItem(cooked);
                         closeInventory();
+                        Cooking.playCookGif(itemName);
                     }
                     if (mode.equals("bait")) {
                         if (Fishing.selectedBait.equals(itemName)) {
@@ -408,13 +444,18 @@ layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
             if (imgUrl != null) {
                 ImageIcon icon = new ImageIcon(imgUrl);
                 Image scaled = icon.getImage().getScaledInstance(56, 56, Image.SCALE_SMOOTH);
-// CHANGE: Create the label with ONLY the image, leaving the text out:
                 JLabel iconLabel = new JLabel(new ImageIcon(scaled));
-                // iconLabel.setVerticalTextPosition(SwingConstants.CENTER);
-                // iconLabel.setHorizontalTextPosition(SwingConstants.CENTER);
                 slot.add(iconLabel, BorderLayout.CENTER);
             } else {
                 slot.add(new JLabel(itemName, SwingConstants.CENTER), BorderLayout.CENTER);
+            }
+            //ITEM COUNT
+            if (count > 1) {
+                JLabel countLabel = new JLabel("x" + count);
+                countLabel.setFont(new Font("Arial", Font.BOLD, 12));
+                countLabel.setForeground(Color.WHITE);
+                countLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+                slot.add(countLabel, BorderLayout.NORTH);
             }
 
             if (itemName.equals(PlayerData.equippedRod)) {
