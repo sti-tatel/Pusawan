@@ -61,10 +61,15 @@ public class Cooking extends JPanel {
         menuButton.setBounds(20, 20, 64, 64);
         panel.add(menuButton);
 
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        panel.add(inventoryButton);
-
+        JButton arrowRight = new JButton(new ImageIcon(getClass().getResource("/images/arrowRight.png")));
+        arrowRight.setBounds(1266, 400, 64, 64);
+        arrowRight.setBorderPainted(false);
+        arrowRight.setContentAreaFilled(false);
+        arrowRight.setFocusPainted(false);
+        Buttons.addClickSound(arrowRight);
+        arrowRight.addActionListener(e -> Game.navigate(Game.KITCHEN));
+        panel.add(arrowRight);
+        
         panel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {

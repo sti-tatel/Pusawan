@@ -126,8 +126,7 @@ public class Fishing extends JPanel {
         menuButton.setBounds(20, 20, 64, 64);
         background.add(menuButton);
 
-        inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
+        inventoryButton = Buttons.createInventoryButton();
         background.add(inventoryButton);
 
         cancelButton = new JButton("Cancel");

@@ -5,6 +5,7 @@ import javax.swing.*;
 
 public class Game extends JFrame {
     public static final String START = "start";
+    public static final String KITCHEN = "kitchen";
     public static final String GAME = "game";
     public static final String CUTTING = "cutting";
     public static final String COOKING = "cooking";
@@ -58,6 +59,7 @@ public class Game extends JFrame {
                     case COOKING: panel = new Cooking(); break;
                     case STORE:   panel = new Buy();     break;
                     case SELL:    panel = new Sell();    break;
+                    case KITCHEN: panel = new Kitchen(); break;
                 }
                 if (panel != null) {
                     panel.setName(screen);

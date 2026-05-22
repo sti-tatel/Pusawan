@@ -220,6 +220,11 @@ public class Buttons extends JPanel {
     public static void closeAllDropdowns() {
         for (Runnable r : dropdownClosers) r.run();
     }
+    public static JButton createInventoryButton() {
+        JButton btn = Buttons.toInventory();
+        btn.setBounds(84, 20, 64, 64); 
+        return btn;
+    }
 }
 
 // === Buy.java ===
@@ -260,9 +265,8 @@ public class Buy extends JPanel {
         JButton menuButton = Buttons.toDropdown();
         menuButton.setBounds(20, 20, 64, 64);
         storebackground.add(menuButton);
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        storebackground.add(inventoryButton);
+        JButton inventoryButton = Buttons.createInventoryButton();
+        this.add(inventoryButton);
     }
     public void loadBackgroundImage() {
         storeBackgroundGif = new ImageIcon(getClass().getResource("/images/storeBackground.gif"));
@@ -323,9 +327,8 @@ public class Cooking extends JPanel {
         menuButton = Buttons.toDropdown();
         menuButton.setBounds(20, 20, 64, 64);
         panel.add(menuButton);
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        panel.add(inventoryButton);
+        JButton inventoryButton = Buttons.createInventoryButton();
+this.add(inventoryButton);
         panel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
@@ -438,9 +441,8 @@ public class Cutting extends JPanel {
         menuButton = Buttons.toDropdown();
         menuButton.setBounds(20, 20, 64, 64);
         panel.add(menuButton);
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        panel.add(inventoryButton);
+        JButton inventoryButton = Buttons.createInventoryButton();
+this.add(inventoryButton);
         panel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
@@ -681,6 +683,10 @@ public class Fishing extends JPanel {
     private float catchProgress = 0.25f; 
     private float playerSize    = 0.15f; 
     private float fishSize      = 0.015f; 
+    private int     driftDir          = 1;     
+    private boolean isMouseDown       = false; 
+    private long    fishMoveStartTime = 0;     
+    private long    nextFishTime      = 0;     
     private static final int BAR_X = 375;  
     private static final int BAR_Y = 640;  
     private static final int BAR_W = 600;  
@@ -698,16 +704,28 @@ public class Fishing extends JPanel {
         new javax.swing.Timer(16, e -> {
             if (!isShowing()) return;
             if (fishingInProgress) {
-                if (Math.random() < 0.03) fishVel += (float)(Math.random() * 0.02 - 0.01);
-                fishVel = Math.max(-0.015f, Math.min(0.015f, fishVel));
-                fishX  += fishVel;
-                if (fishX <= 0f) { fishX = 0f; fishVel = Math.abs(fishVel); }
-                if (fishX >= 1f) { fishX = 1f; fishVel = -Math.abs(fishVel); }
+                float driftSpeed = 0.020f; 
+                float pullSpeed  = 0.020f; 
+                if (isMouseDown) {
+                    playerX += -driftDir * pullSpeed; 
+                } else {
+                    playerX += driftDir * driftSpeed; 
+                }
+                playerX = Math.max(playerSize / 2, Math.min(1f - playerSize / 2, playerX));
+                if (System.currentTimeMillis() > fishMoveStartTime) {
+                    if (Math.random() < 0.05) { 
+                        fishVel += (float)(Math.random() * 0.04 - 0.02); 
+                    }
+                    fishVel = Math.max(-0.03f, Math.min(0.03f, fishVel)); 
+                    fishX  += fishVel;
+                    if (fishX <= 0f) { fishX = 0f; fishVel = Math.abs(fishVel); }
+                    if (fishX >= 1f) { fishX = 1f; fishVel = -Math.abs(fishVel); }
+                }
                 float pLeft  = playerX - playerSize / 2;
                 float pRight = playerX + playerSize / 2;
                 boolean overlap = fishX >= pLeft && fishX <= pRight;
                 if (overlap) {
-                    catchProgress = Math.min(1f, catchProgress + 0.004f);
+                    catchProgress = Math.min(1f, catchProgress + 0.010f);
                     if (catchProgress >= 1f) background.completeCatch();
                 } else {
                     catchProgress = Math.max(0f, catchProgress - 0.003f);
@@ -723,8 +741,7 @@ public class Fishing extends JPanel {
         menuButton = Buttons.toDropdown();
         menuButton.setBounds(20, 20, 64, 64);
         background.add(menuButton);
-        inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
+        JButton inventoryButton = Buttons.createInventoryButton();
         background.add(inventoryButton);
         cancelButton = new JButton("Cancel");
         cancelButton.setBounds(20, 460, 100, 40);
@@ -739,6 +756,8 @@ public class Fishing extends JPanel {
     }
     private void cancelFishing() {
         fishingInProgress = false;
+        isMouseDown       = false;
+        nextFishTime      = System.currentTimeMillis() + 1000; 
         catchProgress     = 0.25f;
         playerX           = 0.5f;
         fishX             = 0.5f;
@@ -762,31 +781,36 @@ public class Fishing extends JPanel {
             baitSelectImage = new ImageIcon(getClass().getResource("/images/baitSelect.png"));
             pondBg.setImageObserver(this);
             fishingGif.setImageObserver(this);
+            getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), "spaceDown");
+            getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released SPACE"), "spaceUp");
+            getActionMap().put("spaceDown", new javax.swing.AbstractAction() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    if (fishingInProgress) isMouseDown = true;
+                }
+            });
+            getActionMap().put("spaceUp", new javax.swing.AbstractAction() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    if (fishingInProgress) isMouseDown = false;
+                }
+            });
             addMouseMotionListener(new MouseMotionAdapter() {
                 public void mouseMoved(MouseEvent e) {
-                    if (fishingInProgress) {
-                        playerX = Math.max(playerSize / 2, Math.min(1f - playerSize / 2,
-                            (float)(e.getX() - BAR_X) / BAR_W));
-                    } else {
+                    if (!fishingInProgress) {
                         boolean over = pierHitbox.contains(e.getPoint()) && Inventory.instance == null;
                         if (over != pierHovered) { pierHovered = over; repaint(); }
                     }
                 }
-                public void mouseDragged(MouseEvent e) {
-                    if (fishingInProgress) {
-                        playerX = Math.max(playerSize / 2, Math.min(1f - playerSize / 2,
-                            (float)(e.getX() - BAR_X) / BAR_W));
-                    }
-                }
             });
             addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
+                public void mousePressed(MouseEvent e) {
+                    isMouseDown = true;
                     if (fishingInProgress) return;
                     if (new Rectangle(5, 625, 180, 70).contains(e.getPoint())) {
                         Inventory.toggleWithMode("bait");
                         return;
                     }
                     if (pierHitbox.contains(e.getPoint())) {
+                        if (System.currentTimeMillis() < nextFishTime) return; 
                         startFishing();
                         return;
                     }
@@ -794,11 +818,15 @@ public class Fishing extends JPanel {
                     if (Inventory.instance != null) { Inventory.instance.closeInventory(); }
                     if (Shop.instance != null) { Shop.instance.dispose(); Shop.instance = null; }
                 }
+                public void mouseReleased(MouseEvent e) {
+                    isMouseDown = false;
+                }
             });
         }
         void completeCatch() {
             fishingInProgress = false;
             showFishResult    = true;
+            nextFishTime      = System.currentTimeMillis() + 1000; 
             catchProgress     = 0.25f;
             menuButton.setVisible(true);
             inventoryButton.setVisible(true);
@@ -807,8 +835,9 @@ public class Fishing extends JPanel {
             if (!isJunk(lastCaughtFish)) PlayerData.incrementCaught(lastCaughtFish);
             if (!selectedBait.equals("No Bait")) {
                 Inventory.removeItem(selectedBait);
-                if (Inventory.items.getOrDefault(selectedBait, 0) <= 0)
+                if (Inventory.items.getOrDefault(selectedBait, 0) <= 0) {
                     selectedBait = "No Bait";
+                }
             }
             new Timer(2000, ev -> {
                 showFishResult = false;
@@ -819,6 +848,7 @@ public class Fishing extends JPanel {
         void failCatch() {
             fishingInProgress = false;
             showFishResult    = true;
+            nextFishTime      = System.currentTimeMillis() + 1000; 
             lastCaughtFish    = null;
             catchProgress     = 0.25f;
             menuButton.setVisible(true);
@@ -838,8 +868,9 @@ public class Fishing extends JPanel {
                 drawMinigame(g);
             } else {
                 g.drawImage(pondBg.getImage(), 0, 0, getWidth(), getHeight(), this);
-                if (pierHovered && pondHover != null)
+                if (pierHovered && pondHover != null) {
                     g.drawImage(pondHover.getImage(), 0, 0, getWidth(), getHeight(), this);
+                }
             }
             drawFishResult(g);
             drawBaitBar(g);
@@ -854,21 +885,19 @@ public class Fishing extends JPanel {
             int pPx = (int)(playerX * BAR_W) + BAR_X;
             int pHalfW = (int)(playerSize * BAR_W / 2);
             int pLeft  = pPx - pHalfW;
-            int pRight = pPx + pHalfW;
-            g2.setColor(Color.WHITE);
-            g2.setStroke(new java.awt.BasicStroke(3));
-            g2.drawLine(pLeft, BAR_Y + BAR_H / 2, pLeft + 12, BAR_Y + 6);
-            g2.drawLine(pLeft, BAR_Y + BAR_H / 2, pLeft + 12, BAR_Y + BAR_H - 6);
-            g2.drawLine(pRight, BAR_Y + BAR_H / 2, pRight - 12, BAR_Y + 6);
-            g2.drawLine(pRight, BAR_Y + BAR_H / 2, pRight - 12, BAR_Y + BAR_H - 6);
-            g2.drawLine(pLeft + 12, BAR_Y + 6, pRight - 12, BAR_Y + 6);
-            g2.drawLine(pLeft + 12, BAR_Y + BAR_H - 6, pRight - 12, BAR_Y + BAR_H - 6);
+            g2.setColor(new Color(210, 210, 210)); 
+            g2.fillRoundRect(pLeft, BAR_Y + 2, pHalfW * 2, BAR_H - 4, 8, 8);
+            g2.setColor(new Color(150, 150, 150)); 
+            g2.drawRoundRect(pLeft, BAR_Y + 2, pHalfW * 2, BAR_H - 4, 8, 8);
             int fPx = (int)(fishX * BAR_W) + BAR_X;
-            g2.setColor(new Color(255, 255, 255, 220));
-            g2.setStroke(new java.awt.BasicStroke(3));
-            g2.drawLine(fPx, BAR_Y + 4, fPx, BAR_Y + BAR_H - 4);
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new java.awt.BasicStroke(5));
+            g2.drawLine(fPx, BAR_Y + 2, fPx, BAR_Y + BAR_H - 2);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new java.awt.BasicStroke(2));
+            g2.drawLine(fPx, BAR_Y + 2, fPx, BAR_Y + BAR_H - 2);
             g2.setFont(new Font("Arial", Font.BOLD, 14));
-            g2.drawString("🐟", fPx - 8, BAR_Y + BAR_H + 16);
+            g2.drawString("Fish", fPx - 8, BAR_Y - 6);
             g2.setStroke(new java.awt.BasicStroke(1));
             g2.setColor(new Color(0, 0, 0, 160));
             g2.fillRoundRect(BAR_X, PROG_Y, BAR_W, PROG_H, 8, 8);
@@ -878,9 +907,9 @@ public class Fishing extends JPanel {
             g2.drawRoundRect(BAR_X, PROG_Y, BAR_W, PROG_H, 8, 8);
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.BOLD, 16));
-            String hint = "Move your mouse to keep the line on the fish!";
+            String hint = "Hold Click or Space to pull!";
             int tw = g2.getFontMetrics().stringWidth(hint);
-            g2.drawString(hint, BAR_X + BAR_W / 2 - tw / 2, BAR_Y - 12);
+            g2.drawString(hint, BAR_X + BAR_W / 2 - tw / 2, BAR_Y - 18);
         }
         private void drawFishResult(Graphics g) {
             if (!showFishResult) return;
@@ -908,8 +937,9 @@ public class Fishing extends JPanel {
                 java.net.URL baitUrl = getClass().getResource("/images/"
                     + Character.toLowerCase(selectedBait.charAt(0))
                     + selectedBait.substring(1).replace(" ", "") + ".png");
-                if (baitUrl != null)
+                if (baitUrl != null) {
                     g.drawImage(new ImageIcon(baitUrl).getImage(), 10, 634, 48, 48, this);
+                }
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.BOLD, 11));
                 g.drawString(selectedBait, 65, 653);
@@ -931,8 +961,11 @@ public class Fishing extends JPanel {
             playerX           = 0.5f;
             fishX             = 0.5f;
             fishVel           = 0f;
+            isMouseDown       = false;
+            driftDir = Math.random() < 0.5 ? 1 : -1;
+            fishMoveStartTime = System.currentTimeMillis() + (long)(Math.random() * 200 + 300);
             boolean junk = isJunk(lastCaughtFish);
-            playerSize = junk ? 0.20f : 0.13f; 
+            playerSize = junk ? 0.20f : 0.20f; 
             if ("bambooRod".equals(PlayerData.equippedRod)) playerSize += 0.04f;
             if ("hotdogRod".equals(PlayerData.equippedRod)) playerSize += 0.08f;
             repaint();
@@ -1029,6 +1062,7 @@ import java.awt.*;
 import javax.swing.*;
 public class Game extends JFrame {
     public static final String START = "start";
+    public static final String KITCHEN = "kitchen";
     public static final String GAME = "game";
     public static final String CUTTING = "cutting";
     public static final String COOKING = "cooking";
@@ -1072,6 +1106,7 @@ public class Game extends JFrame {
                     case COOKING: panel = new Cooking(); break;
                     case STORE:   panel = new Buy();     break;
                     case SELL:    panel = new Sell();    break;
+                    case KITCHEN: panel = new Kitchen(); break;
                 }
                 if (panel != null) {
                     panel.setName(screen);
@@ -1568,6 +1603,67 @@ layeredPane.add(itemDisplay, JLayeredPane.PALETTE_LAYER);
     }
 }
 
+// === Kitchen.java ===
+package Pusawan;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+public class Kitchen extends JPanel {
+    private ImageIcon animatedBackground;
+    private final int LEFT_WIDTH = 365;
+    private final int RIGHT_WIDTH = 410;
+    private final int HITBOX_HEIGHT = 720;
+    private boolean isLeftHovered = false;
+    private boolean isRightHovered = false;
+    public Kitchen() {
+        animatedBackground = new ImageIcon(getClass().getResource("/images/kitchen.gif"));
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Point p = e.getPoint();
+                isLeftHovered = new Rectangle(0, 0, LEFT_WIDTH, HITBOX_HEIGHT).contains(p);
+                isRightHovered = new Rectangle(getWidth() - RIGHT_WIDTH, 0, RIGHT_WIDTH, HITBOX_HEIGHT).contains(p);
+                repaint();
+            }
+        });
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Point p = e.getPoint();
+                if (new Rectangle(0, 0, LEFT_WIDTH, HITBOX_HEIGHT).contains(p)) {
+                    goToCooking(); 
+                } else if (new Rectangle(getWidth() - RIGHT_WIDTH, 0, RIGHT_WIDTH, HITBOX_HEIGHT).contains(p)) {
+                    goToCutting(); 
+                }
+            }
+        });
+        JButton inventoryButton = Buttons.createInventoryButton();
+this.add(inventoryButton);
+    }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        if (animatedBackground != null) {
+            g2d.drawImage(animatedBackground.getImage(), 0, 0, getWidth(), getHeight(), this);
+        }
+        if (isLeftHovered) {
+            g2d.setColor(new Color(255, 255, 255, 50));
+            g2d.fillRect(0, 0, LEFT_WIDTH, HITBOX_HEIGHT);
+        }
+        if (isRightHovered) {
+            g2d.setColor(new Color(255, 255, 255, 50));
+            g2d.fillRect(getWidth() - RIGHT_WIDTH, 0, RIGHT_WIDTH, HITBOX_HEIGHT);
+        }
+    }
+    private void goToCooking() {
+        Game.navigate(Game.COOKING);
+    }
+    private void goToCutting() {
+        Game.navigate(Game.CUTTING);
+    }
+}
+
 // === Main.java ===
 package Pusawan;
 import javax.swing.SwingUtilities;
@@ -1635,9 +1731,8 @@ public class Sell extends JPanel {
         JButton menuButton = Buttons.toDropdown();
         menuButton.setBounds(20, 20, 64, 64);
         bg.add(menuButton);
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        bg.add(inventoryButton);
+        JButton inventoryButton = Buttons.createInventoryButton();
+this.add(inventoryButton);
         bg.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent e) {
                 if (Shop.instance != null) {
@@ -2036,7 +2131,7 @@ public class Start extends JPanel {
         int titleX = (1350 - titleWidth) / 2;
         title.setBounds(titleX, -50, titleWidth, titleHeight);
         background1.add(title);
-        JButton playButton = Buttons.toStart(() -> Game.navigate(Game.GAME));
+        JButton playButton = Buttons.toStart(() -> Game.navigate(Game.KITCHEN));
         int buttonWidth = 143;
         int buttonHeight = 80;
         int playX = (1350 - buttonWidth) / 2;

@@ -25,9 +25,14 @@ public class Sell extends JPanel {
         menuButton.setBounds(20, 20, 64, 64);
         bg.add(menuButton);
 
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        bg.add(inventoryButton);
+        JButton arrowLeft = new JButton(new ImageIcon(getClass().getResource("/images/arrowLeft.png")));
+        arrowLeft.setBounds(20, 400, 64, 64);
+        arrowLeft.setBorderPainted(false);
+        arrowLeft.setContentAreaFilled(false);
+        arrowLeft.setFocusPainted(false);
+        Buttons.addClickSound(arrowLeft);
+        arrowLeft.addActionListener(e -> Game.navigate(Game.STORE));
+        bg.add(arrowLeft);
 
         // intercept ALL presses before any button responds
         bg.addMouseListener(new java.awt.event.MouseAdapter() {

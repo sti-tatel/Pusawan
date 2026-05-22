@@ -177,18 +177,18 @@ public class Inventory extends JPanel {
         JPanel descPanel = new JPanel(null);
         descPanel.setBounds(860, 265, 172, 280);
         //descPanel.setBackground(new Color(45, 28, 12));
-        descPanel.setOpaque(true);
+        descPanel.setOpaque(false);
 
         descName = new JLabel("", SwingConstants.CENTER);
         descName.setBounds(5, 10, 162, 30);
-        descName.setForeground(new Color(255, 220, 130));
-        descName.setFont(new Font("Arial", Font.BOLD, 13));
+        // descName.setForeground(new Color(255, 220, 130));
+        descName.setFont(new Font("Arial", Font.BOLD, 20));
         descPanel.add(descName);
 
         descText = new JTextArea("Select an item");
         descText.setBounds(5, 50, 162, 380);
         descText.setForeground(new Color(0, 0, 0));
-        descText.setFont(new Font("Arial", Font.PLAIN, 11));
+        descText.setFont(new Font("Arial", Font.PLAIN, 15));
         descText.setOpaque(false);
         descText.setEditable(false);
         descText.setLineWrap(true);

@@ -27,7 +27,7 @@ public class Buttons extends JPanel {
         addClickSound(menuButton);
 
         int itemHeight = 64;
-        int totalItems = 6;
+        int totalItems = 4;
         int fullHeight = itemHeight * totalItems;
 
         JPanel inner = new JPanel(new GridLayout(totalItems, 1, 0, 0));
@@ -42,18 +42,15 @@ public class Buttons extends JPanel {
         JButton mainMenu = new JButton(new ImageIcon(Buttons.class.getResource("/images/mainmenu.png")));
         JButton fishing  = new JButton(new ImageIcon(Buttons.class.getResource("/images/fishing.png")));
         JButton cutting  = new JButton(new ImageIcon(Buttons.class.getResource("/images/cutIconStatic.png")));
-        JButton cooking  = new JButton(new ImageIcon(Buttons.class.getResource("/images/cookIconStatic.png")));
         JButton store    = new JButton(new ImageIcon(Buttons.class.getResource("/images/store.png")));
-        JButton sell     = new JButton(new ImageIcon(Buttons.class.getResource("/images/sell.png")));
+        
         addClickSound(mainMenu);
         addClickSound(fishing);
         addClickSound(cutting);
-        addClickSound(cooking);
         addClickSound(store);
-        addClickSound(sell);
 
         Insets zero = new Insets(0, 0, 0, 0);
-        for (JButton b : new JButton[]{mainMenu, fishing, cutting, cooking, store, sell}) {
+        for (JButton b : new JButton[]{mainMenu, fishing, cutting,  store }) {
             b.setBorderPainted(false);
             b.setContentAreaFilled(false);
             b.setFocusPainted(false);
@@ -63,9 +60,7 @@ public class Buttons extends JPanel {
         inner.add(mainMenu);
         inner.add(fishing);
         inner.add(cutting);
-        inner.add(cooking);
         inner.add(store);
-        inner.add(sell);
 
         boolean[] open = {false};
         // int[] currentH = {0};
@@ -90,10 +85,9 @@ public class Buttons extends JPanel {
 
         mainMenu.addActionListener(e -> { close.run(); Game.navigate(Game.START); });
         fishing.addActionListener(e ->  { close.run(); Game.navigate(Game.GAME); });
-        cutting.addActionListener(e ->  { close.run(); Game.navigate(Game.CUTTING); });
-        cooking.addActionListener(e ->  { close.run(); Game.navigate(Game.COOKING); });
+        cutting.addActionListener(e ->  { close.run(); Game.navigate(Game.KITCHEN); });
         store.addActionListener(e ->    { close.run(); Game.navigate(Game.STORE); });
-        sell.addActionListener(e ->     { close.run(); Game.navigate(Game.SELL); });
+        
 
         menuButton.addActionListener(e -> {
             if (open[0]) { close.run(); return; }
@@ -211,5 +205,11 @@ public class Buttons extends JPanel {
 
     public static void closeAllDropdowns() {
         for (Runnable r : dropdownClosers) r.run();
+    }
+
+    public static JButton createInventoryButton() {
+        JButton btn = Buttons.toInventory();
+        btn.setBounds(84, 20, 64, 64); // right next to dropdown at x=20, width=64
+        return btn;
     }
 }

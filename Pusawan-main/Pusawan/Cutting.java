@@ -60,9 +60,14 @@ public class Cutting extends JPanel {
         menuButton.setBounds(20, 20, 64, 64);
         panel.add(menuButton);
 
-        JButton inventoryButton = Buttons.toInventory();
-        inventoryButton.setBounds(20, 505, 100, 100);
-        panel.add(inventoryButton);
+        JButton arrowLeft = new JButton(new ImageIcon(getClass().getResource("/images/arrowLeft.png")));
+        arrowLeft.setBounds(20, 400, 64, 64);
+        arrowLeft.setBorderPainted(false);
+        arrowLeft.setContentAreaFilled(false);
+        arrowLeft.setFocusPainted(false);
+        Buttons.addClickSound(arrowLeft);
+        arrowLeft.addActionListener(e -> Game.navigate(Game.KITCHEN));
+        panel.add(arrowLeft);
 
         // HOVER
         panel.addMouseMotionListener(new MouseMotionAdapter() {
