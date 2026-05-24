@@ -103,13 +103,13 @@ public class Fishing extends JPanel {
                 if (overlap) {
                     //player health
                     //health gain
-                    catchProgress = Math.min(1f, catchProgress + 0.010f);
+                    catchProgress = Math.min(1f, catchProgress + 0.015f);
                     if (catchProgress >= 1f) background.completeCatch();
                 } else {
                     //health drain
                     //player damage
                     //damage
-                    catchProgress = Math.max(0f, catchProgress - 0.003f);
+                    catchProgress = Math.max(0f, catchProgress - 0.005f);
                     if (catchProgress <= 0f) background.failCatch();
                 }
             }
@@ -272,6 +272,12 @@ public class Fishing extends JPanel {
             showFishResult    = true;
             nextFishTime      = System.currentTimeMillis() + 1000; // 1-second cooldown
             lastCaughtFish    = null;
+            if (!selectedBait.equals("No Bait")) {
+                Inventory.removeItem(selectedBait);
+                if (Inventory.items.getOrDefault(selectedBait, 0) <= 0) {
+                    selectedBait = "No Bait";
+                }
+            }
             catchProgress     = 0.25f;
             menuButton.setVisible(true);
             inventoryButton.setVisible(true);
@@ -437,7 +443,7 @@ public class Fishing extends JPanel {
             //bar size
             //player bar size
             //capture size
-            playerSize = junk ? 0.20f : 0.20f; // bracket width — bigger = easier
+            playerSize = junk ? 0.30f : 0.30f; // bracket width — bigger = easier
             // fishVel random impulse range controlled in game loop via 0.02 multiplier
 
             // rod bonuses — widens player bracket

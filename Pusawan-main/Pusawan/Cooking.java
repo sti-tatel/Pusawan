@@ -32,7 +32,7 @@ public class Cooking extends JPanel {
     private static final int SHRINK_START   = 100;  // outer ring starts here
     
     // ADJUSTED FOR BETTER FEEL:
-    private static final int SHRINK_SPEED   = 2;   // Slower shrink (was 2) for easier visual tracking
+    private static final int SHRINK_SPEED   = 3;   // Slower shrink (was 2) for easier visual tracking
     private static final int PERFECT_WINDOW = 14;  // Doubled perfect window (was 6)
     private static final int GOOD_WINDOW    = 30;  // Widened good window (was 20)
 

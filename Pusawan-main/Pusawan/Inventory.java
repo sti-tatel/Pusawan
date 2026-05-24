@@ -2,7 +2,6 @@ package Pusawan;
 
 import java.awt.*;
 import javax.swing.*;
-
 public class Inventory extends JPanel {
 
     private JPanel bg;
@@ -199,29 +198,57 @@ public class Inventory extends JPanel {
         descText.setFocusable(false);
         descPanel.add(descText);
 
-        equipBtn = new JButton(new ImageIcon(getClass().getResource("/images/equip.png")));
-        equipBtn.setBounds(8, 162, 156, 32);
+        Image equipImg = new ImageIcon(getClass().getResource("/images/equip.png")).getImage().getScaledInstance(86, 32, Image.SCALE_SMOOTH);
+        equipBtn = new JButton(new ImageIcon(equipImg));
+        equipBtn.setBounds(43, 162, 86, 32);
         equipBtn.setBorderPainted(false);
         equipBtn.setContentAreaFilled(false);
         equipBtn.setFocusPainted(false);
+        equipBtn.setMargin(new Insets(0, 0, 0, 0));
+        equipBtn.setHorizontalAlignment(SwingConstants.CENTER);
+        equipBtn.setVerticalAlignment(SwingConstants.CENTER);        
+        equipBtn.setHorizontalTextPosition(SwingConstants.CENTER);
+        equipBtn.setVerticalTextPosition(SwingConstants.CENTER);        
+        equipBtn.setRolloverEnabled(true);
+        ImageIcon equipHover = new ImageIcon(new ImageIcon(getClass().getResource("/images/equipHovered.png")).getImage().getScaledInstance(86, 32, Image.SCALE_SMOOTH));
+        equipBtn.setRolloverIcon(equipHover);
         equipBtn.setVisible(false);
         descPanel.add(equipBtn);
 
-        unequipBtn = new JButton(new ImageIcon(getClass().getResource("/images/unequip.png")));
-        unequipBtn.setBounds(8, 162, 156, 32);
+        Image unequipImg = new ImageIcon(getClass().getResource("/images/unequip.png")).getImage().getScaledInstance(89, 32, Image.SCALE_SMOOTH);
+        unequipBtn = new JButton(new ImageIcon(unequipImg));        
+        unequipBtn.setBounds(41, 162, 89, 32);
         unequipBtn.setBorderPainted(false);
         unequipBtn.setContentAreaFilled(false);
         unequipBtn.setFocusPainted(false);
+        unequipBtn.setMargin(new Insets(0, 0, 0, 0));
+        unequipBtn.setHorizontalAlignment(SwingConstants.CENTER);
+        unequipBtn.setVerticalAlignment(SwingConstants.CENTER);    
+        unequipBtn.setHorizontalTextPosition(SwingConstants.CENTER);
+        unequipBtn.setVerticalTextPosition(SwingConstants.CENTER);
+        unequipBtn.setRolloverEnabled(true);
+        ImageIcon unequipHover = new ImageIcon(new ImageIcon(getClass().getResource("/images/unequipHovered.png")).getImage().getScaledInstance(89, 32, Image.SCALE_SMOOTH));
+        unequipBtn.setRolloverIcon(unequipHover);
         unequipBtn.setVisible(false);
         descPanel.add(unequipBtn);
 
-        deleteBtn = new JButton(new ImageIcon(getClass().getResource("/images/delete.png")));
-        deleteBtn.setBounds(8, 200, 156, 32);
+        Image deleteImg = new ImageIcon(getClass().getResource("/images/delete.png")).getImage().getScaledInstance(89, 32, Image.SCALE_SMOOTH);
+        deleteBtn = new JButton(new ImageIcon(deleteImg));
+        deleteBtn.setBounds(41, 200, 89, 32);
         deleteBtn.setBorderPainted(false);
+        deleteBtn.setHorizontalAlignment(SwingConstants.CENTER);
+        deleteBtn.setVerticalAlignment(SwingConstants.CENTER);
+        deleteBtn.setHorizontalTextPosition(SwingConstants.CENTER);
+        deleteBtn.setVerticalTextPosition(SwingConstants.CENTER);
         deleteBtn.setContentAreaFilled(false);
         deleteBtn.setFocusPainted(false);
+        deleteBtn.setMargin(new Insets(0, 0, 0, 0));
+        deleteBtn.setRolloverEnabled(true);
+        ImageIcon deleteHover = new ImageIcon(new ImageIcon(getClass().getResource("/images/deleteHovered.png")).getImage().getScaledInstance(89, 32, Image.SCALE_SMOOTH));
+        deleteBtn.setRolloverIcon(deleteHover);
         deleteBtn.setVisible(false);
         descPanel.add(deleteBtn);
+
 
         layeredPane.add(descPanel, JLayeredPane.DEFAULT_LAYER);
 
