@@ -19,7 +19,7 @@ public class Inventory extends JPanel {
 
     private static final java.util.Set<String> FISH_NAMES = new java.util.HashSet<>(java.util.Arrays.asList("Carp", "Catfish", "Bass", "Perch"));
 
-    private static final java.util.Map<String, String> descriptions = new java.util.LinkedHashMap<>();
+    public static final java.util.Map<String, String> descriptions = new java.util.LinkedHashMap<>();
 
     static {
         descriptions.put("Bass", "A strong freshwater fish.\nSells well raw.");

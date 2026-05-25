@@ -9,6 +9,7 @@ public class Buy extends JPanel {
     private Image hover;
     private boolean hovering = false;
     private Rectangle storeZone = new Rectangle(530, 200, 480, 480);
+    private String selectedItem = ""; // Tracks which item slot is selected
 
     public Buy() {
 

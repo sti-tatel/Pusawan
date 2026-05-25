@@ -842,6 +842,12 @@ public class Fishing extends JPanel {
             showFishResult    = true;
             nextFishTime      = System.currentTimeMillis() + 1000; 
             lastCaughtFish    = null;
+            if (!selectedBait.equals("No Bait")) {
+                Inventory.removeItem(selectedBait);
+                if (Inventory.items.getOrDefault(selectedBait, 0) <= 0) {
+                    selectedBait = "No Bait";
+                }
+            }
             catchProgress     = 0.25f;
             menuButton.setVisible(true);
             inventoryButton.setVisible(true);

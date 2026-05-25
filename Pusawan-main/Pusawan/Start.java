@@ -33,19 +33,35 @@ public class Start extends JPanel {
         background1.add(title);
 
         // ===== PLAY BUTTON =====
-        JButton playButton = Buttons.toStart(() -> {
+        JButton playButton = new JButton(new ImageIcon(getClass().getResource("/images/play.png")));
+        playButton.setBorderPainted(false);
+        playButton.setContentAreaFilled(false);
+        playButton.setFocusPainted(false);
+        Buttons.addClickSound(playButton);
+        playButton.addActionListener(e -> {
             AudioPlayer.playMusic("morningMood.wav");
             Game.navigate(Game.KITCHEN);
         });
-
-        int buttonWidth = 143;
-        int buttonHeight = 80;
-
-        int playX = (1350 - buttonWidth) / 2;
-        int playY = (1150 - buttonHeight) / 2;
-
-        playButton.setBounds(playX, playY, buttonWidth, buttonHeight);
+        playButton.setBounds(595, 500, 160, 100);
         background1.add(playButton);
+
+        // ===== SETTINGS BUTTON =====
+        JButton settingsButton = new JButton(new ImageIcon(getClass().getResource("/images/settings.png")));
+        settingsButton.setBorderPainted(false);
+        settingsButton.setContentAreaFilled(false);
+        settingsButton.setFocusPainted(false);
+        Buttons.addClickSound(settingsButton);
+        settingsButton.setBounds(465, 600, 202, 100);
+        background1.add(settingsButton);
+
+        // ===== CREDITS BUTTON =====
+        JButton creditsButton = new JButton(new ImageIcon(getClass().getResource("/images/credits.png")));
+        creditsButton.setBorderPainted(false);
+        creditsButton.setContentAreaFilled(false);
+        creditsButton.setFocusPainted(false);
+        Buttons.addClickSound(creditsButton);
+        creditsButton.setBounds(677, 600, 208, 100);
+        background1.add(creditsButton);
 
     }
 
