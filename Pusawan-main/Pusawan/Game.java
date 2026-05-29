@@ -43,6 +43,14 @@ public class Game extends JFrame {
         Buttons.closeAllDropdowns();
         if (Inventory.instance != null) { Inventory.instance.closeInventory(); }
         if (Shop.instance != null) { Shop.instance.dispose(); Shop.instance = null; }
+        
+        // Clears the persistent sell shop UI layer if switching to another room
+        for (java.awt.Component c : instance.getLayeredPane().getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
+            if (c instanceof JLayeredPane) {
+                c.setVisible(false);
+            }
+        }
+        
         hideOverlay();
 
         // lazy load screen if not yet added

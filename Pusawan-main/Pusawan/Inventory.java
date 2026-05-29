@@ -41,6 +41,10 @@ public class Inventory extends JPanel {
         descriptions.put("Insect Bait", "Buzzing with potential.\nGood for mid-tier fish.");
         descriptions.put("Fish Bait", "Bait made from fish.\nAttracts bigger catches.");
         descriptions.put("Magic Bait", "Mysterious and powerful.\nWhat will you catch?");
+        descriptions.put("Default Rod", "A basic fishing rod. \nGood for beginners."); 
+        descriptions.put("Bamboo Rod", "A sturdy rod made of bamboo. \n+4% catch zone.");
+        descriptions.put("Hotdog Rod", "Forged in the grease pits beneath creation itself.\nThe strongest fishign rod ever conceived. \n+8% catch zone.");
+
     }
 
     // ================= SHARED INVENTORY =================

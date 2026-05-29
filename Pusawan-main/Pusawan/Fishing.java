@@ -103,13 +103,13 @@ public class Fishing extends JPanel {
                 if (overlap) {
                     //player health
                     //health gain
-                    catchProgress = Math.min(1f, catchProgress + 0.015f);
+                    catchProgress = Math.min(1f, catchProgress + 0.013f);
                     if (catchProgress >= 1f) background.completeCatch();
                 } else {
                     //health drain
                     //player damage
                     //damage
-                    catchProgress = Math.max(0f, catchProgress - 0.005f);
+                    catchProgress = Math.max(0f, catchProgress - 0.004f);
                     if (catchProgress <= 0f) background.failCatch();
                 }
             }
@@ -235,6 +235,8 @@ public class Fishing extends JPanel {
                     isMouseDown = false;
                 }
             });
+
+            
         }
 
         // called when progress bar fills completely — fish caught
@@ -249,6 +251,18 @@ public class Fishing extends JPanel {
 
             Inventory.addItem(lastCaughtFish);
             if (!isJunk(lastCaughtFish)) PlayerData.incrementCaught(lastCaughtFish);
+
+            if (!isJunk(lastCaughtFish)) {
+                switch (lastCaughtFish) {
+                    case "Perch":            PlayerData.addXP(10); break; // +10 XP
+                    case "Carp":             PlayerData.addXP(15); break; // +15 XP
+                    case "Catfish":          PlayerData.addXP(20); break; // +20 XP
+                    case "Bass":             PlayerData.addXP(30); break; // +30 XP
+                    case "Sandal":           PlayerData.addXP(2);  break; // +2 XP
+                    case "Shoe":             PlayerData.addXP(2);  break; // +2 XP
+                    case "Plastic Wrapper":  PlayerData.addXP(1);  break; // +1 XP
+                }
+            }
 
             // consume bait
             if (!selectedBait.equals("No Bait")) {
@@ -307,6 +321,7 @@ public class Fishing extends JPanel {
 
             drawFishResult(g);
             drawBaitBar(g);
+            drawXPBar(g);
         }
 
         // draws the horizontal minigame bar, player bracket, fish indicator, and progress bar
@@ -367,6 +382,7 @@ public class Fishing extends JPanel {
             String hint = "Hold Click or Space to pull!";
             int tw = g2.getFontMetrics().stringWidth(hint);
             g2.drawString(hint, BAR_X + BAR_W / 2 - tw / 2, BAR_Y - 18);
+
         }
 
         // draws the catch result banner
@@ -380,7 +396,9 @@ public class Fishing extends JPanel {
 
             String text;
             if (lastCaughtFish == null) {
-                text = "The fish got away!";
+                text = PlayerData.equippedRod == null || PlayerData.equippedRod.equals("None")
+                    ? "You need a rod to fish!"
+                    : "The fish got away!";
                 g.setColor(new Color(255, 100, 100));
             } else {
                 boolean junk = isJunk(lastCaughtFish);
@@ -419,6 +437,12 @@ public class Fishing extends JPanel {
 
         // ===== START FISHING =====
         private void startFishing() {
+        if (PlayerData.equippedRod == null || PlayerData.equippedRod.equals("None")) {
+            showFishResult = true;
+            lastCaughtFish = null;
+            new Timer(2000, ev -> { showFishResult = false; repaint(); ((Timer)ev.getSource()).stop(); }).start();
+            return;
+        }
             menuButton.setVisible(false);
             inventoryButton.setVisible(false);
             cancelButton.setVisible(true);
@@ -443,7 +467,7 @@ public class Fishing extends JPanel {
             //bar size
             //player bar size
             //capture size
-            playerSize = junk ? 0.30f : 0.30f; // bracket width — bigger = easier
+            playerSize = junk ? 0.20f : 0.20f; // bracket width — bigger = easier
             // fishVel random impulse range controlled in game loop via 0.02 multiplier
 
             // rod bonuses — widens player bracket
@@ -463,6 +487,7 @@ public class Fishing extends JPanel {
             int roll = (int)(Math.random() * 100);
             switch (selectedBait) {
                 case "Worm Bait":
+                    // Worm Bait chances: Perch 34%, Carp 22%, Catfish 10%, Bass 5%, Plastic Wrapper 16%, Sandal 8%, Shoe 5%
                     if (roll < 34) return "Perch";
                     if (roll < 56) return "Carp";
                     if (roll < 66) return "Catfish";
@@ -471,6 +496,7 @@ public class Fishing extends JPanel {
                     if (roll < 95) return "Sandal";
                     return "Shoe";
                 case "Insect Bait":
+                    // Insect Bait chances: Perch 28%, Carp 20%, Catfish 22%, Bass 9%, Plastic Wrapper 12%, Sandal 6%, Shoe 3%
                     if (roll < 28) return "Perch";
                     if (roll < 48) return "Carp";
                     if (roll < 70) return "Catfish";
@@ -479,6 +505,7 @@ public class Fishing extends JPanel {
                     if (roll < 97) return "Sandal";
                     return "Shoe";
                 case "Fish Bait":
+                    // Fish Bait chances: Perch 22%, Carp 20%, Catfish 20%, Bass 24%, Plastic Wrapper 8%, Sandal 4%, Shoe 2%
                     if (roll < 22) return "Perch";
                     if (roll < 42) return "Carp";
                     if (roll < 62) return "Catfish";
@@ -487,11 +514,13 @@ public class Fishing extends JPanel {
                     if (roll < 98) return "Sandal";
                     return "Shoe";
                 case "Magic Bait":
+                    // Magic Bait chances: Perch 15%, Carp 20%, Catfish 30%, Bass 35%
                     if (roll < 15) return "Perch";
                     if (roll < 35) return "Carp";
                     if (roll < 65) return "Catfish";
                     return "Bass";
                 default:
+                    // No bait chances: Perch 12%, Carp 10%, Catfish 8%, Bass 6%, Plastic Wrapper 26%, Sandal 19%, Shoe 19%
                     if (roll < 12) return "Perch";
                     if (roll < 22) return "Carp";
                     if (roll < 30) return "Catfish";
@@ -540,6 +569,24 @@ public class Fishing extends JPanel {
                         case "Shoe": return 19; default: return 0;
                     }
             }
+        }
+
+        private void drawXPBar(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            int barW = 200;
+            int barH = 14;
+            int barX = getWidth() - barW - 20;
+            int barY = 20;
+            g2.setColor(new Color(0, 0, 0, 160));
+            g2.fillRoundRect(barX, barY, barW, barH, 8, 8);
+            int fill = (int)((float) PlayerData.xp / PlayerData.xpToNextLevel * barW);
+            g2.setColor(new Color(80, 160, 255));
+            g2.fillRoundRect(barX, barY, fill, barH, 8, 8);
+            g2.setColor(new Color(255, 255, 255, 60));
+            g2.drawRoundRect(barX, barY, barW, barH, 8, 8);
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial", Font.BOLD, 12));
+            g2.drawString("Lv " + PlayerData.level + "  " + PlayerData.xp + "/" + PlayerData.xpToNextLevel, barX, barY - 4);
         }
     }
 }

@@ -45,23 +45,23 @@ public class Start extends JPanel {
         playButton.setBounds(595, 500, 160, 100);
         background1.add(playButton);
 
-        // ===== SETTINGS BUTTON =====
-        JButton settingsButton = new JButton(new ImageIcon(getClass().getResource("/images/settings.png")));
-        settingsButton.setBorderPainted(false);
-        settingsButton.setContentAreaFilled(false);
-        settingsButton.setFocusPainted(false);
-        Buttons.addClickSound(settingsButton);
-        settingsButton.setBounds(465, 600, 202, 100);
-        background1.add(settingsButton);
+        // // ===== SETTINGS BUTTON =====
+        // JButton settingsButton = new JButton(new ImageIcon(getClass().getResource("/images/settings.png")));
+        // settingsButton.setBorderPainted(false);
+        // settingsButton.setContentAreaFilled(false);
+        // settingsButton.setFocusPainted(false);
+        // Buttons.addClickSound(settingsButton);
+        // settingsButton.setBounds(465, 600, 202, 100);
+        // background1.add(settingsButton);
 
-        // ===== CREDITS BUTTON =====
-        JButton creditsButton = new JButton(new ImageIcon(getClass().getResource("/images/credits.png")));
-        creditsButton.setBorderPainted(false);
-        creditsButton.setContentAreaFilled(false);
-        creditsButton.setFocusPainted(false);
-        Buttons.addClickSound(creditsButton);
-        creditsButton.setBounds(677, 600, 208, 100);
-        background1.add(creditsButton);
+        // // ===== CREDITS BUTTON =====
+        // JButton creditsButton = new JButton(new ImageIcon(getClass().getResource("/images/credits.png")));
+        // creditsButton.setBorderPainted(false);
+        // creditsButton.setContentAreaFilled(false);
+        // creditsButton.setFocusPainted(false);
+        // Buttons.addClickSound(creditsButton);
+        // creditsButton.setBounds(677, 600, 208, 100);
+        // background1.add(creditsButton);
 
     }
 

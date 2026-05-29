@@ -5,9 +5,22 @@ import java.awt.Font;
 import javax.swing.JLabel;
 
 public class PlayerData {
-    private static int money = 99999999;
+    private static int money = 0;
 
     public static String equippedRod = null;
+
+    public static int xp = 0;
+    public static int xpToNextLevel = 100;
+    public static int level = 1;
+
+    public static void addXP(int amount) {
+        xp += amount;
+        while (xp >= xpToNextLevel) {
+            xp -= xpToNextLevel;
+            level++;
+            xpToNextLevel = (int)(xpToNextLevel * 1.5f);
+        }
+    }
 
     public static int getMoney() {
         return money;

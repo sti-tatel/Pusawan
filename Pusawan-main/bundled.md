@@ -717,10 +717,10 @@ public class Fishing extends JPanel {
                 float pRight = playerX + playerSize / 2;
                 boolean overlap = fishX >= pLeft && fishX <= pRight;
                 if (overlap) {
-                    catchProgress = Math.min(1f, catchProgress + 0.015f);
+                    catchProgress = Math.min(1f, catchProgress + 0.013f);
                     if (catchProgress >= 1f) background.completeCatch();
                 } else {
-                    catchProgress = Math.max(0f, catchProgress - 0.005f);
+                    catchProgress = Math.max(0f, catchProgress - 0.004f);
                     if (catchProgress <= 0f) background.failCatch();
                 }
             }
@@ -963,7 +963,8 @@ public class Fishing extends JPanel {
             driftDir = Math.random() < 0.5 ? 1 : -1;
             fishMoveStartTime = System.currentTimeMillis() + (long)(Math.random() * 200 + 300);
             boolean junk = isJunk(lastCaughtFish);
-            playerSize = junk ? 0.30f : 0.30f; 
+            playerSize = junk ? 0.20f : 0.20f; 
+            if ("defaultRod".equals(PlayerData.equippedRod)) playerSize += 0.00f;
             if ("bambooRod".equals(PlayerData.equippedRod)) playerSize += 0.04f;
             if ("hotdogRod".equals(PlayerData.equippedRod)) playerSize += 0.08f;
             repaint();
@@ -1090,6 +1091,11 @@ public class Game extends JFrame {
         Buttons.closeAllDropdowns();
         if (Inventory.instance != null) { Inventory.instance.closeInventory(); }
         if (Shop.instance != null) { Shop.instance.dispose(); Shop.instance = null; }
+        for (java.awt.Component c : instance.getLayeredPane().getComponentsInLayer(JLayeredPane.DRAG_LAYER)) {
+            if (c instanceof JLayeredPane) {
+                c.setVisible(false);
+            }
+        }
         hideOverlay();
         if (instance.container.getLayout() instanceof CardLayout) {
             boolean found = false;
@@ -1171,7 +1177,7 @@ public class Inventory extends JPanel {
     private JButton unequipBtn;
     private JButton deleteBtn;
     private static final java.util.Set<String> FISH_NAMES = new java.util.HashSet<>(java.util.Arrays.asList("Carp", "Catfish", "Bass", "Perch"));
-    private static final java.util.Map<String, String> descriptions = new java.util.LinkedHashMap<>();
+    public static final java.util.Map<String, String> descriptions = new java.util.LinkedHashMap<>();
     static {
         descriptions.put("Bass", "A strong freshwater fish.\nSells well raw.");
         descriptions.put("Carp", "A common river fish.\nNot the tastiest.");
@@ -1192,6 +1198,9 @@ public class Inventory extends JPanel {
         descriptions.put("Insect Bait", "Buzzing with potential.\nGood for mid-tier fish.");
         descriptions.put("Fish Bait", "Bait made from fish.\nAttracts bigger catches.");
         descriptions.put("Magic Bait", "Mysterious and powerful.\nWhat will you catch?");
+        descriptions.put("Default Rod", "A basic fishing rod. \nGood for beginners."); 
+        descriptions.put("Bamboo Rod", "A sturdy rod made of bamboo.");
+        descriptions.put("Hotdog Rod", "Forged in the grease pits beneath creation itself.\nThe strongest fishign rod ever conceived.");
     }
     public static java.util.Map<String, Integer> items = new java.util.LinkedHashMap<>();
     public static void fillDebug() {
@@ -1870,8 +1879,9 @@ public class Shop extends JFrame {
         buyPrices.put("Insect Bait", 25);
         buyPrices.put("Fish Bait",   35);
         buyPrices.put("Magic Bait",  100);
-        buyItems.put("bambooRod", 2000);
-        buyItems.put("hotdogRod", 5000);
+        buyItems.put("Default Rod", 0);
+        buyItems.put("Bamboo", 2000);
+        buyItems.put("Hotdog Rod", 5000);
     }
     private boolean isBuyTab      = false; 
     private boolean isSellBaitTab = false; 
@@ -2046,13 +2056,13 @@ public class Shop extends JFrame {
                         if (imgUrl != null) {
                             ImageIcon icon = new ImageIcon(imgUrl);
                             Image scaled = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                            JLabel iconLabel = new JLabel(name + "  ₱" + price, new ImageIcon(scaled), SwingConstants.CENTER);
+                            JLabel iconLabel = new JLabel(name + "  ‚₱" + price, new ImageIcon(scaled), SwingConstants.CENTER);
                             iconLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
                             iconLabel.setHorizontalTextPosition(SwingConstants.CENTER);
                             iconLabel.setForeground(Color.WHITE);
                             slot.add(iconLabel, BorderLayout.CENTER);
                         } else {
-                            JLabel itemLabel = new JLabel(name + "  ₱" + price, SwingConstants.CENTER);
+                            JLabel itemLabel = new JLabel(name + "  ‚₱" + price, SwingConstants.CENTER);
                             itemLabel.setForeground(Color.WHITE);
                             itemLabel.setFont(new Font("Arial", Font.PLAIN, 11));
                             slot.add(itemLabel, BorderLayout.CENTER);
@@ -2098,12 +2108,12 @@ public class Shop extends JFrame {
                     Image scaled = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
                     slot.add(new JLabel(new ImageIcon(scaled), SwingConstants.CENTER), BorderLayout.CENTER);
                 } else {
-                    JLabel itemLabel = new JLabel(name + "  ₱" + price, SwingConstants.CENTER);
+                    JLabel itemLabel = new JLabel(name + " ₱" + price, SwingConstants.CENTER);
                     itemLabel.setForeground(Color.WHITE);
                     itemLabel.setFont(new Font("Arial", Font.PLAIN, 11));
                     slot.add(itemLabel, BorderLayout.CENTER);
                 }
-                JLabel countLabel = new JLabel("x" + count + "  ₱" + price, SwingConstants.RIGHT);
+                JLabel countLabel = new JLabel("x" + count + " ₱" + price, SwingConstants.RIGHT);
                 countLabel.setForeground(Color.YELLOW);
                 countLabel.setFont(new Font("Arial", Font.BOLD, 12));
                 slot.add(countLabel, BorderLayout.NORTH);
@@ -2197,15 +2207,16 @@ public class Start extends JPanel {
         int titleX = (1350 - titleWidth) / 2;
         title.setBounds(titleX, -50, titleWidth, titleHeight);
         background1.add(title);
-        JButton playButton = Buttons.toStart(() -> {
+        JButton playButton = new JButton(new ImageIcon(getClass().getResource("/images/play.png")));
+        playButton.setBorderPainted(false);
+        playButton.setContentAreaFilled(false);
+        playButton.setFocusPainted(false);
+        Buttons.addClickSound(playButton);
+        playButton.addActionListener(e -> {
             AudioPlayer.playMusic("morningMood.wav");
             Game.navigate(Game.KITCHEN);
         });
-        int buttonWidth = 143;
-        int buttonHeight = 80;
-        int playX = (1350 - buttonWidth) / 2;
-        int playY = (1150 - buttonHeight) / 2;
-        playButton.setBounds(playX, playY, buttonWidth, buttonHeight);
+        playButton.setBounds(595, 500, 160, 100);
         background1.add(playButton);
     }
     public void loadBackgroundImage() {
