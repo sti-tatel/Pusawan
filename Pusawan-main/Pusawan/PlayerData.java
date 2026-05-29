@@ -5,7 +5,8 @@ import java.awt.Font;
 import javax.swing.JLabel;
 
 public class PlayerData {
-    private static int money = 0;
+
+    private static int money = 500;
 
     public static String equippedRod = null;
 
@@ -18,7 +19,7 @@ public class PlayerData {
         while (xp >= xpToNextLevel) {
             xp -= xpToNextLevel;
             level++;
-            xpToNextLevel = (int)(xpToNextLevel * 1.5f);
+            xpToNextLevel = (int) (xpToNextLevel * 1.5f);
         }
     }
 
@@ -51,10 +52,10 @@ public class PlayerData {
         moneyLabels.removeIf(ref -> ref.get() == null);
         for (java.lang.ref.WeakReference<JLabel> ref : moneyLabels) {
             JLabel label = ref.get();
-            if (label != null) label.setText("₱" + money);
+            if (label != null) {
+                label.setText("₱" + money);
+            }
         }
     }
 
-
-    
 }
