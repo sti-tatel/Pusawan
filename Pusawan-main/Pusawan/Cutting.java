@@ -1,0 +1,117 @@
+package Pusawan;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+public class Cutting extends JPanel {
+    private BufferedImage bg;
+    private Image hover;
+    private Image cutGif;
+    private boolean hovering = false;
+    private boolean cutting  = false;
+    private Rectangle knifeZone = new Rectangle(360, 205, 77,  669);
+    private Rectangle boardZone = new Rectangle(528, 298, 550, 518);
+    private String popupText    = "";
+    private long   popupEndTime = 0;
+    private static Cutting instance;
+    private JButton menuButton;
+    public static boolean isCutting = false;
+
+    public static void playCutGif(String fishName) {
+        if (instance == null) return;
+        isCutting = true;
+        instance.cutting = true;
+        Buttons.closeAllDropdowns();
+        instance.menuButton.setEnabled(false);
+        instance.showPopup("Consumed: " + fishName + " → Added: Cut " + fishName);
+        instance.repaint();
+        new Timer(7000, e -> {
+            isCutting = false;
+            instance.cutting = false;
+            instance.menuButton.setEnabled(true);
+            instance.repaint();
+            ((Timer) e.getSource()).stop();
+        }).start();
+    }
+
+    public Cutting() {
+        instance = this;
+        isCutting = false;
+        loadImages();
+        BackgroundPanel panel = new BackgroundPanel();
+        setLayout(new BorderLayout());
+        add(panel, BorderLayout.CENTER);
+        panel.setLayout(null);
+
+        menuButton = Buttons.toDropdown();
+        menuButton.setBounds(20, 20, 64, 64);
+        panel.add(menuButton);
+
+        JButton settingsButton = Buttons.toSettings();
+        settingsButton.setBounds(1266, 20, 64, 64);
+        panel.add(settingsButton);
+
+        panel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Point p = e.getPoint();
+                repaint();
+            }
+        });
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Point p = e.getPoint();
+                Buttons.closeAllDropdowns();
+                if ((knifeZone.contains(p) || boardZone.contains(p)) && !isCutting) {
+                    if (Inventory.getFirstFish() == null) return;
+                    Inventory.toggleWithMode("cut");
+                } else {
+                    if (Inventory.instance != null) Inventory.instance.closeInventory();
+                }
+                if (Shop.instance != null) Shop.instance.dispose();
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hovering = false;
+                repaint();
+            }
+        });
+
+        new Timer(16, e -> { if (isShowing()) repaint(); }).start();
+    }
+
+    private void showPopup(String text) {
+        popupText    = text;
+        popupEndTime = System.currentTimeMillis() + 8000;
+    }
+
+    private void loadImages() {
+        try {
+            bg     = ImageIO.read(getClass().getResourceAsStream("/images/cuttingBoard.png"));
+            hover  = new ImageIcon(getClass().getResource("/images/cuttingBoardSelected.png")).getImage();
+            cutGif = new ImageIcon(getClass().getResource("/images/cut.gif")).getImage();
+        } catch (Exception e) {
+            System.out.println("Image load error: " + e.getMessage());
+        }
+    }
+
+    class BackgroundPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+            if (hovering)  g.drawImage(hover,  0, 0, getWidth(), getHeight(), this);
+            if (cutting)   g.drawImage(cutGif, 0, 0, getWidth(), getHeight(), this);
+            if (System.currentTimeMillis() < popupEndTime) {
+                g.setColor(new Color(0, 0, 0, 180));
+                g.fillRoundRect(450, 650, 450, 50, 20, 20);
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 16));
+                g.drawString(popupText, 470, 680);
+            }
+        }
+    }
+}

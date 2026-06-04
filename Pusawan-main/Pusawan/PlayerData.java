@@ -1,0 +1,84 @@
+package Pusawan;
+
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.JLabel;
+
+public class PlayerData {
+
+    private static int money = 500;
+
+    public static String equippedRod = null;
+
+    public static int xp = 0;
+    public static int xpToNextLevel = 150;
+    public static int level = 1;
+
+    public static void addXP(int amount) {
+        xp += amount;
+        while (xp >= xpToNextLevel) {
+            xp -= xpToNextLevel;
+            level++;
+            xpToNextLevel = (int) (xpToNextLevel * 1.5f);
+        }
+    }
+
+    public static int getMoney() {
+        return money;
+    }
+
+    private static java.util.List<java.lang.ref.WeakReference<JLabel>> moneyLabels = new java.util.ArrayList<>();
+
+    private static java.util.Map<String, Integer> caughtCounts = new java.util.LinkedHashMap<>();
+
+    public static int getCaughtCount(String fish) {
+        return caughtCounts.getOrDefault(fish, 0);
+    }
+
+    public static void incrementCaught(String fish) {
+        caughtCounts.put(fish, caughtCounts.getOrDefault(fish, 0) + 1);
+    }
+
+    public static JLabel createMoneyLabel() {
+        JLabel label = new JLabel("₱" + money);
+        label.setFont(new Font("Arial", Font.BOLD, 20));
+        label.setForeground(Color.WHITE);
+        moneyLabels.add(new java.lang.ref.WeakReference<>(label));
+        return label;
+    }
+
+    public static void flashMoneyLabel() {
+        boolean[] toggle = {true};
+        int[] count = {0};
+        javax.swing.Timer flashTimer = new javax.swing.Timer(200, null);
+        flashTimer.addActionListener(e -> {
+            Color c = toggle[0] ? Color.RED : Color.WHITE;
+            for (java.lang.ref.WeakReference<JLabel> ref : moneyLabels) {
+                JLabel lbl = ref.get();
+                if (lbl != null) lbl.setForeground(c);
+            }
+            toggle[0] = !toggle[0];
+            count[0]++;
+            if (count[0] >= 10) {
+                flashTimer.stop();
+                for (java.lang.ref.WeakReference<JLabel> ref : moneyLabels) {
+                    JLabel lbl = ref.get();
+                    if (lbl != null) lbl.setForeground(Color.WHITE);
+                }
+            }
+        });
+        flashTimer.start();
+    }
+
+    public static void addMoney(int amount) {
+        money += amount;
+        moneyLabels.removeIf(ref -> ref.get() == null);
+        for (java.lang.ref.WeakReference<JLabel> ref : moneyLabels) {
+            JLabel label = ref.get();
+            if (label != null) {
+                label.setText("₱" + money);
+            }
+        }
+    }
+
+}
